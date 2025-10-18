@@ -1,41 +1,62 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
-import { cn } from "@/lib/utils";
 
 export default function Typing() {
   const message =
-    "Nepal is a beautiful landlocked country nestled in the heart of the Himalayas, between India and China. Known for its breathtaking mountain ranges, including Mount Everest—the highest peak in the world—Nepal is a land of rich culture, spiritual heritage, and natural beauty. Its diverse geography ranges from snowy peaks to lush green hills and fertile plains. The people of Nepal are known for their warmth, resilience, and deep-rooted traditions reflected in vibrant festivals, temples, and art. Despite being small in size, Nepal’s cultural and natural diversity make it one of the most enchanting destinations in the world.";
-  const words = message.split(" ");
+    "Nepal is a beautiful landlocked country nestled. This is going to be test";
   const characters = message.split("");
-  const activeCharacterRef = useRef<HTMLSpanElement | null>(null);
-  const [activeWord, setActiveWord] = useState(0);
-  const x = activeCharacterRef.current?.clientWidth;
+  const [currIndex, setCurrIndex] = useState(0);
+  const [caretPosition, setCaretPosition] = useState({ x: 0, y: 0 });
+  const characterRefs = useRef<(HTMLSpanElement | null)[]>([]);
+  const containerRef = useRef<HTMLDivElement | null>(null);
 
-  useEffect(() => {}, []);
+  useEffect(() => {
+    const charElement = characterRefs.current[currIndex];
+    const containerElement = containerRef.current;
+    if (charElement && containerElement) {
+      const charRect = charElement.getBoundingClientRect();
+      const containerRect = containerElement.getBoundingClientRect();
+      setCaretPosition({
+        x: charRect.left - containerRect.left,
+        y: charRect.top - containerRect.top,
+      });
+    }
+  }, [currIndex]);
+
+  const handleOnType = (e: any) => {
+    setCurrIndex((prev) => prev + 1);
+  };
 
   return (
     <>
-      <div className="relative">
-        <span className={cn("text-amber-200", `left-[${x}px] absolute`)}>
-          |
-        </span>
-        <span className="text-indigo-500" ref={activeCharacterRef}>
-          sankalpa
-        </span>
-      </div>
-      <div className="w-lg border flex flex-wrap text-xl break-words line-clamp-3">
+      <div
+        ref={containerRef}
+        className="w-full max-w-4xl border p-8 text-2xl relative font-mono leading-relaxed break-words"
+      >
+        <input
+          onChange={handleOnType}
+          type="text"
+          className="absolute w-full h-full opacity-0 top-0 left-0"
+        />
+        <span
+          className="absolute w-0.5 h-8 bg-amber-400"
+          style={{
+            top: caretPosition.y + "px",
+            left: caretPosition.x + "px",
+            transition: "left 0.1s ease-out, top 0.1s ease-out",
+          }}
+        />
         {characters.map((char, index) => (
-          <span className={cn("whitespace-pre")}>{char}</span>
+          <span
+            key={index}
+            ref={(el) => {
+              characterRefs.current[index] = el;
+            }}
+          >
+            {char === " " ? "\u00A0" : char}
+          </span>
         ))}
       </div>
     </>
   );
-}
-
-type LetterProps = {
-  char: string;
-  className?: string;
-};
-function Letter({ char, className }: LetterProps) {
-  return <span className={cn("whitespace-pre", className)}>{char}</span>;
 }
