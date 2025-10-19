@@ -84,7 +84,7 @@ export default function Typing() {
     const expectedChar = words[activeWord][currCharIndex] || "";
 
     setCorrectCharacterMap((prev) =>
-      new Map(prev).set(key, typedChar === expectedChar)
+      new Map(prev).set(key, typedChar === expectedChar),
     );
 
     setCurrCharIndex(currCharIndex + 1);
