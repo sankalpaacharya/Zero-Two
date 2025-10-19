@@ -16,12 +16,12 @@ app.prepare().then(() => {
   io.on("connection", (socket) => {
     console.log("socket.io client connected:", socket.id);
 
-    socket.emit("hello", { message: "welcome" });
+    socket.emit("hello", { message: "sucker" });
 
-    socket.on("ping", () => {
-      console.log("received ping from", socket.id);
-      socket.emit("pong");
-    });
+    // socket.on("ping", () => {
+    //   console.log("received ping from", socket.id);
+    //   socket.emit("pong");
+    // });
   });
 
   httpServer

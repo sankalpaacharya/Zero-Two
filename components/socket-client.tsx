@@ -5,8 +5,7 @@ import { io, type Socket } from "socket.io-client";
 export default function SocketClient() {
   useEffect(() => {
     // auto-connect to same origin
-    const socket: Socket = io({
-      // with default path '/socket.io'
+    const socket: Socket = io("ws://localhost:3000", {
       transports: ["websocket"],
     });
 
@@ -16,12 +15,10 @@ export default function SocketClient() {
 
     socket.on("hello", (payload) => {
       console.log("server says hello", payload);
-      // Try a ping/pong
-      socket.emit("ping");
     });
 
-    socket.on("pong", () => {
-      console.log("received pong from server");
+    socket.on("game", (payload) => {
+      console.log("game payload from the server", payload);
     });
 
     socket.on("connect_error", (err) => {

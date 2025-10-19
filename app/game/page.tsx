@@ -5,8 +5,8 @@ import { Progress } from "@/components/ui/8bit/progress";
 import { useState } from "react";
 
 export default function Page() {
-  const [playerHealth, setPlayerHealth] = useState(10);
-  const [opponentHealth, setOpponentHealth] = useState(75);
+  const [playerHealth, setPlayerHealth] = useState(100);
+  const [opponentHealth, setOpponentHealth] = useState(100);
 
   return (
     <div className="flex  items-center flex-col border h-screen gap-2 max-w-7xl mx-auto">
