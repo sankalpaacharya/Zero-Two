@@ -16,7 +16,6 @@ app.prepare().then(() => {
   io.on("connection", (socket) => {
     console.log("socket.io client connected:", socket.id);
 
-    // Simple handshake test
     socket.emit("hello", { message: "welcome" });
 
     socket.on("ping", () => {
