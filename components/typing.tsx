@@ -3,10 +3,14 @@ import React, { useEffect, useRef, useState } from "react";
 
 export default function Typing() {
   const message =
-    "Nepal is a beautiful landlocked country nestled. This is going to be test";
+    "The world is made up of loafers who want money without working and fools who are willing to work without becoming rich";
   const characters = message.split("");
   const [currIndex, setCurrIndex] = useState(0);
   const [caretPosition, setCaretPosition] = useState({ x: 0, y: 0 });
+  const [typedValue, setTypedValue] = useState("");
+  const [correctCharacterIndex, setCorrectCharacterIndex] = useState<
+    Record<number, boolean>
+  >({});
   const characterRefs = useRef<(HTMLSpanElement | null)[]>([]);
   const containerRef = useRef<HTMLDivElement | null>(null);
 
@@ -23,8 +27,38 @@ export default function Typing() {
     }
   }, [currIndex]);
 
-  const handleOnType = (e: any) => {
-    setCurrIndex((prev) => prev + 1);
+  const handleOnType = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = e.target.value;
+    const newLength = newValue.length;
+    const oldLength = typedValue.length;
+
+    if (newLength < oldLength) {
+      if (currIndex > 0) {
+        setCurrIndex(currIndex - 1);
+        setTypedValue(newValue);
+      }
+      return;
+    }
+
+    if (newLength > oldLength && currIndex < characters.length) {
+      const typedChar = newValue[newValue.length - 1];
+      const expectedChar = characters[currIndex];
+
+      setCorrectCharacterIndex((prev: any) => ({
+        ...prev,
+        [currIndex]: typedChar === expectedChar,
+      }));
+
+      setCurrIndex(currIndex + 1);
+      setTypedValue(newValue);
+    }
+  };
+
+  const getCharacterColor = (index: number) => {
+    if (index >= currIndex) return "text-gray-600";
+    if (correctCharacterIndex[index] === true) return "text-white";
+    if (correctCharacterIndex[index] === false) return "text-red-500";
+    return "text-gray-600";
   };
 
   return (
@@ -35,6 +69,7 @@ export default function Typing() {
       >
         <input
           onChange={handleOnType}
+          value={typedValue}
           type="text"
           className="absolute w-full h-full opacity-0 top-0 left-0"
         />
@@ -49,6 +84,7 @@ export default function Typing() {
         {characters.map((char, index) => (
           <span
             key={index}
+            className={getCharacterColor(index)}
             ref={(el) => {
               characterRefs.current[index] = el;
             }}
