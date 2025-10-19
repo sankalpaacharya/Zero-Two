@@ -50,7 +50,7 @@ function Progress({
         className={cn(
           "bg-primary/20 relative w-full overflow-hidden",
           heightClass,
-          font !== "normal" && "retro"
+          font !== "normal" && "retro",
         )}
         {...props}
       >
@@ -59,7 +59,7 @@ function Progress({
           className={cn(
             "h-full transition-all",
             variant === "retro" ? "flex" : "w-full flex-1",
-            progressBg && variant !== "retro" ? progressBg : "bg-primary"
+            progressBg && variant !== "retro" ? progressBg : "bg-primary",
           )}
           style={
             variant === "retro"
@@ -76,7 +76,7 @@ function Progress({
                     key={Math.random()}
                     className={cn(
                       "size-full mx-[1px]",
-                      i < filledSquares ? progressBg : "bg-transparent"
+                      i < filledSquares ? progressBg : "bg-transparent",
                     )}
                   />
                 );

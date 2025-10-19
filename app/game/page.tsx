@@ -1,7 +1,8 @@
 "use client";
-import { useState } from "react";
+import SocketClient from "@/components/socket-client";
 import Typing from "@/components/typing";
 import { Progress } from "@/components/ui/8bit/progress";
+import { useState } from "react";
 
 export default function Page() {
   const [playerHealth, setPlayerHealth] = useState(10);
@@ -9,6 +10,7 @@ export default function Page() {
 
   return (
     <div className="flex  items-center flex-col border h-screen gap-2 max-w-7xl mx-auto">
+      <SocketClient />
       <div className="space-y-10 mt-10 flex flex-col justify-center w-full items-center">
         <div className="">
           <p className="uppercase">Sanku</p>
