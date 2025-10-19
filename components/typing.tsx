@@ -1,10 +1,5 @@
 "use client";
-import React, { useEffect, useRef, useState } from "react";
-import { Press_Start_2P } from "next/font/google";
-
-const geistSans = Press_Start_2P({
-  weight: ["400"],
-});
+import { useEffect, useRef, useState } from "react";
 
 export default function Typing() {
   const message =
@@ -18,7 +13,7 @@ export default function Typing() {
   >({});
   const characterRefs = useRef<(HTMLSpanElement | null)[]>([]);
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const [isInputActive, setIsInputActive] = useState(true);
+  const [isInputActive, setIsInputActive] = useState(false);
 
   useEffect(() => {
     const charElement = characterRefs.current[currIndex];
@@ -68,47 +63,44 @@ export default function Typing() {
   };
 
   return (
-    <>
-      <div
-        ref={containerRef}
-        className={`${geistSans.className} w-full max-w-4xl border p-8 text-2xl relative leading-relaxed break-words`}
-      >
-        {!isInputActive && (
-          <div className="w-full h-full backdrop-blur-xs z-0 justify-center items-center flex border absolute top-0 left-0">
-            <p>Click to start typing</p>
-          </div>
-        )}
-        <input
-          onFocus={() => setIsInputActive(true)}
-          onBlur={() => setIsInputActive(false)}
-          autoFocus
-          onChange={handleOnType}
-          value={typedValue}
-          type="text"
-          className="absolute w-full h-full top-0 left-0 z-10 opacity-0"
+    <div
+      ref={containerRef}
+      className={`w-full max-w-4xl border p-8 text-2xl relative leading-relaxed break-words`}
+    >
+      {!isInputActive && (
+        <div className="w-full h-full backdrop-blur-xs z-0 justify-center items-center flex border absolute top-0 left-0">
+          <p>Click to start typing</p>
+        </div>
+      )}
+      <input
+        onFocus={() => setIsInputActive(true)}
+        onBlur={() => setIsInputActive(false)}
+        onChange={handleOnType}
+        value={typedValue}
+        type="text"
+        className="absolute w-full h-full top-0 left-0 z-10 opacity-0"
+      />
+      {isInputActive && (
+        <span
+          className="absolute w-0.5 h-8 bg-amber-400"
+          style={{
+            top: `${caretPosition.y - 5}px`,
+            left: `${caretPosition.x - 5}px`,
+            transition: "left 0.1s ease-out, top 0.1s ease-out",
+          }}
         />
-        {isInputActive && (
-          <span
-            className="absolute w-0.5 h-8 bg-amber-400"
-            style={{
-              top: caretPosition.y - 5 + "px",
-              left: caretPosition.x - 5 + "px",
-              transition: "left 0.1s ease-out, top 0.1s ease-out",
-            }}
-          />
-        )}
-        {characters.map((char, index) => (
-          <span
-            key={index}
-            className={getCharacterColor(index)}
-            ref={(el) => {
-              characterRefs.current[index] = el;
-            }}
-          >
-            {char === " " ? "\u00A0" : char}
-          </span>
-        ))}
-      </div>
-    </>
+      )}
+      {characters.map((char, index) => (
+        <span
+          key={Math.random()}
+          className={getCharacterColor(index)}
+          ref={(el) => {
+            characterRefs.current[index] = el;
+          }}
+        >
+          {char === " " ? "\u00A0" : char}
+        </span>
+      ))}
+    </div>
   );
 }
