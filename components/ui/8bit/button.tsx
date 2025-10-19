@@ -48,7 +48,7 @@ function Button({ children, asChild, ...props }: BitButtonProps) {
       className={cn(
         "rounded-none active:translate-y-1 transition-transform relative inline-flex items-center justify-center gap-1.5 border-none",
         font !== "normal" && "retro",
-        className
+        className,
       )}
       size={size}
       variant={variant}
