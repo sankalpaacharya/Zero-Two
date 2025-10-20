@@ -1,11 +1,16 @@
 "use client";
+import { getSocket } from "@/lib/socket";
 import { cn } from "@/lib/utils";
+import { useGameStore } from "@/store/gameStore";
 import { useEffect, useRef, useState } from "react";
 
 export default function Typing() {
   const message =
     "The world is made up of loafers who want money without working and fools who are willing to work without becoming rich";
   const words = message.split(" ");
+
+  const socket = getSocket();
+  const { roomId } = useGameStore();
 
   // State
   const [activeWord, setActiveWord] = useState(0);
@@ -82,9 +87,11 @@ export default function Typing() {
     // Normal character
     const key = `${activeWord}-${currCharIndex}`;
     const expectedChar = words[activeWord][currCharIndex] || "";
-
+    if (typedChar === expectedChar) {
+      socket.emit("typed", { roomId });
+    }
     setCorrectCharacterMap((prev) =>
-      new Map(prev).set(key, typedChar === expectedChar),
+      new Map(prev).set(key, typedChar === expectedChar)
     );
 
     setCurrCharIndex(currCharIndex + 1);

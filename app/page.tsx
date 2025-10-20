@@ -8,7 +8,6 @@ import {
   CardTitle,
 } from "@/components/ui/8bit/card";
 import { Input } from "@/components/ui/8bit/input";
-import Link from "next/link";
 import ChapterIntro from "@/components/ui/8bit/blocks/chapter-intro";
 import { useCallback, useEffect, useState } from "react";
 import { getSocket } from "@/lib/socket";
@@ -43,7 +42,9 @@ function GameStart() {
 
   const joinRoom = useCallback(() => {
     socket.emit("joinRoom", { roomId });
-  }, [socket, roomId]);
+    addRoomId(roomId);
+    redirect(`/game/${roomId}`);
+  }, [socket, roomId, addRoomId]);
 
   useEffect(() => {
     socket.on("joinedRoom", (payload) => {

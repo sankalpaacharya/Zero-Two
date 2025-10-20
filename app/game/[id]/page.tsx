@@ -14,6 +14,10 @@ export default function Page() {
   const [playerHealth, setPlayerHealth] = useState(100);
   const [opponentHealth, setOpponentHealth] = useState(100);
 
+  socket.on("healthDamage", () => {
+    setPlayerHealth((prev) => prev - 1);
+  });
+
   return (
     <div className="flex  items-center flex-col border h-screen gap-2 max-w-7xl mx-auto">
       <div className="space-y-10 mt-10 flex flex-col justify-center w-full items-center">
