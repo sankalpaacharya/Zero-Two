@@ -25,15 +25,15 @@ export default function ChapterIntro({
     height === "lg"
       ? "min-h-[420px] md:min-h-[640px]"
       : height === "sm"
-        ? "min-h-[240px] md:min-h-[360px]"
-        : "min-h-[320px] md:min-h-[480px]";
+      ? "min-h-[240px] md:min-h-[360px]"
+      : "min-h-[320px] md:min-h-[480px]";
 
   const alignClass =
     align === "left"
       ? "justify-start text-left"
       : align === "right"
-        ? "justify-end text-right"
-        : "justify-center text-center";
+      ? "justify-end text-right"
+      : "justify-center text-center";
 
   return (
     <Card className={cn(className)} {...props}>
@@ -41,6 +41,8 @@ export default function ChapterIntro({
         <div className={cn("relative w-full", heightClass)}>
           {/* Background image */}
           <img
+            width={100}
+            height={100}
             src={backgroundSrc}
             alt=""
             className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.7]"
@@ -68,7 +70,7 @@ export default function ChapterIntro({
           <div
             className={cn(
               "relative z-10 flex h-full items-center p-8 md:p-12",
-              alignClass,
+              alignClass
             )}
           >
             <div className="mx-auto max-w-3xl">
