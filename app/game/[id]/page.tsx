@@ -1,12 +1,14 @@
 "use client";
 import Typing from "@/components/typing";
 import { Progress } from "@/components/ui/8bit/progress";
+import { useGameStore } from "@/store/gameStore";
 import { useParams } from "next/navigation";
 import { useState } from "react";
 
 export default function Page() {
+  const { roomId, setPlayers, setRoomId } = useGameStore();
+
   const { id } = useParams();
-  console.log(id);
   const [playerHealth, setPlayerHealth] = useState(100);
   const [opponentHealth, setOpponentHealth] = useState(100);
 
