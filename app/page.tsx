@@ -10,7 +10,10 @@ import {
 import { Input } from "@/components/ui/8bit/input";
 import Link from "next/link";
 import ChapterIntro from "@/components/ui/8bit/blocks/chapter-intro";
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { getSocket } from "@/lib/socket";
+import { useGameStore } from "@/store/gameStore";
+import { redirect } from "next/navigation";
 
 export default function Home() {
   return (
@@ -31,6 +34,23 @@ export default function Home() {
 
 function GameStart() {
   const [roomId, setRoomId] = useState("");
+  const { setRoomId: addRoomId } = useGameStore();
+  const socket = getSocket();
+
+  const createRoom = useCallback(() => {
+    socket.emit("createRoom");
+  }, [socket]);
+
+  const joinRoom = useCallback(() => {
+    socket.emit("joinRoom", { roomId });
+  }, [socket, roomId]);
+
+  useEffect(() => {
+    socket.on("joinedRoom", (payload) => {
+      addRoomId(payload.roomId);
+      redirect(`/game/${payload.roomId}`);
+    });
+  }, [socket, addRoomId]);
 
   return (
     <Card className="w-full max-w-md">
@@ -46,13 +66,13 @@ function GameStart() {
           onChange={(e) => setRoomId(e.target.value)}
         />
         <div className="flex gap-4 w-full">
-          <Link href="/game" className="flex-1">
-            <Button className="w-full">Create Room</Button>
-          </Link>
+          <Button className="w-full" onClick={createRoom}>
+            Create Room
+          </Button>
           {roomId ? (
-            <Link href={`/game/${roomId}`} className="flex-1">
-              <Button className="w-full">Join</Button>
-            </Link>
+            <Button className="w-full" onClick={joinRoom}>
+              Join
+            </Button>
           ) : (
             <Button className="w-full flex-1" disabled>
               Join
