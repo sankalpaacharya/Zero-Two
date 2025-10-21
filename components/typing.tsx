@@ -69,7 +69,7 @@ export default function Typing() {
   };
 
   return (
-    <div ref={containerRef} className="w-full p-8 text-2xl relative">
+    <div ref={containerRef} className="w-full text-2xl relative">
       {!isInputActive && (
         <div className="absolute inset-0 flex justify-center items-center backdrop-blur-xs z-0">
           <p>Click to start typing</p>

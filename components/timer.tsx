@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 
-function Clock({ startMinutes = 30, isRunning = true }) {
+function Clock({ startMinutes = 1, isRunning = true }) {
   const [secondsLeft, setSecondsLeft] = useState(startMinutes * 60);
 
   useEffect(() => {
@@ -19,9 +19,7 @@ function Clock({ startMinutes = 30, isRunning = true }) {
   const seconds = (secondsLeft % 60).toString().padStart(2, "0");
 
   return (
-    <div
-      style={{ fontSize: "2rem", fontFamily: "monospace", textAlign: "center" }}
-    >
+    <div className="text-muted-foreground/60">
       {minutes}:{seconds}
     </div>
   );

@@ -4,13 +4,15 @@ import { Progress } from "@/components/ui/8bit/progress";
 import { getSocket } from "@/lib/socket";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import Clock from "@/components/timer";
+import { useGameStore } from "@/store/gameStore";
 
 export default function Page() {
   const socket = getSocket();
   const { id } = useParams();
-
   const [playerHealth, setPlayerHealth] = useState(100);
   const [opponentHealth, setOpponentHealth] = useState(100);
+  const { isStarted } = useGameStore();
 
   console.log("Page component rendered");
 
@@ -31,8 +33,9 @@ export default function Page() {
   }, [opponentHealth]);
 
   return (
-    <div className="flex items-center flex-col justify-center h-screen gap-2 max-w-[120rem] mx-auto">
-      <div className="space-y-10 flex flex-col justify-center w-full items-center">
+    <div className="flex items-start flex-col justify-center h-screen gap-2 max-w-[120rem] mx-auto">
+      <Clock isRunning={isStarted} />
+      <div className="space-y-10 flex flex-col">
         {/* <h2 className="text-xl text-red-600">{id}</h2> */}
 
         {/* <div>
@@ -54,7 +57,7 @@ export default function Page() {
         </div> */}
       </div>
 
-      <div className="">
+      <div className="w-full">
         <Typing />
       </div>
     </div>

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useGameStore } from "@/store/gameStore";
 
 type UseTypingProps = {
   words: string[];
@@ -6,6 +7,7 @@ type UseTypingProps = {
 };
 
 export function useTyping({ words, onCorrectType }: UseTypingProps) {
+  const { isStarted, setIsStarted } = useGameStore();
   const [activeWord, setActiveWord] = useState(0);
   const [currCharIndex, setCurrCharIndex] = useState(0);
   const [typedValue, setTypedValue] = useState("");
@@ -58,6 +60,10 @@ export function useTyping({ words, onCorrectType }: UseTypingProps) {
 
     setCurrCharIndex((prev) => prev + 1);
     setTypedValue(newValue);
+    // game started bruh
+    if (!isStarted) {
+      setIsStarted(true);
+    }
   };
 
   const reset = () => {
