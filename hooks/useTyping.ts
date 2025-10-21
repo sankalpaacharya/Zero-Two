@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 
 type UseTypingProps = {
   words: string[];
@@ -56,5 +56,31 @@ export function useTyping({ words }: UseTypingProps) {
     activeWord,
     currCharIndex,
     handleOnType,
+    correctCharacterMap,
   };
+}
+
+function useTypingD() {
+  const [currWordIndex, setCurrWordIndex] = useState(0);
+  const [currCharacterIndex, setCurrCharacterIndex] = useState(0);
+  const [typedValue, setTypedValue] = useState("");
+
+  const sentence =
+    "The world is made up of loafers who want money without working and fools who are willing to work without becoming rich";
+  const words = sentence.split(" ");
+
+  function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const currtypedValue = e.target.value;
+    const currTypeChar = currtypedValue[currtypedValue.length - 1] || "";
+    if (typedCharacter === " ") {
+      if (words.length > currWordIndex) {
+        setCurrWordIndex((prev) => prev + 1);
+      }
+      return;
+    }
+
+    // handle for backsapce
+    if (typedCharacter.length) {
+    }
+  }
 }
