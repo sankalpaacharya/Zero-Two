@@ -2,27 +2,40 @@
 import Typing from "@/components/typing";
 import { Progress } from "@/components/ui/8bit/progress";
 import { getSocket } from "@/lib/socket";
-import { useGameStore } from "@/store/gameStore";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function Page() {
   const socket = getSocket();
-  const { roomId, setPlayers, setRoomId } = useGameStore();
   const { id } = useParams();
 
   const [playerHealth, setPlayerHealth] = useState(100);
   const [opponentHealth, setOpponentHealth] = useState(100);
 
-  socket.on("healthDamage", () => {
-    setPlayerHealth((prev) => prev - 1);
-  });
+  console.log("Page component rendered");
+
+  useEffect(() => {
+    const handleHealthDamage = () => {
+      setPlayerHealth((prev) => Math.max(prev - 1, 0));
+    };
+
+    socket.on("healthDamage", handleHealthDamage);
+
+    return () => {
+      socket.off("healthDamage", handleHealthDamage);
+    };
+  }, [socket]);
+
+  useEffect(() => {
+    console.log("Opponent health changed:", opponentHealth);
+  }, [opponentHealth]);
 
   return (
-    <div className="flex  items-center flex-col border h-screen gap-2 max-w-7xl mx-auto">
+    <div className="flex items-center flex-col border h-screen gap-2 max-w-7xl mx-auto">
       <div className="space-y-10 mt-10 flex flex-col justify-center w-full items-center">
         <h2 className="text-xl text-red-600">{id}</h2>
-        <div className="">
+
+        <div>
           <p className="uppercase">Sanku</p>
           <Progress
             value={playerHealth}
@@ -30,8 +43,10 @@ export default function Page() {
             progressBg={getHealthColor(playerHealth)}
           />
         </div>
+
+        {/* Opponent Health */}
         <div>
-          <p className="uppercase">nishit</p>
+          <p className="uppercase">Nishit</p>
           <Progress
             value={opponentHealth}
             className="w-md"
@@ -39,6 +54,7 @@ export default function Page() {
           />
         </div>
       </div>
+
       <div className="mt-10">
         <Typing />
       </div>

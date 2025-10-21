@@ -66,7 +66,7 @@ function GameStart() {
           value={roomId}
           onChange={(e) => setRoomId(e.target.value)}
         />
-        <div className="flex gap-4 w-full">
+        <div className="flex gap-6 w-full flex-col">
           <Button className="w-full" onClick={createRoom}>
             Create Room
           </Button>

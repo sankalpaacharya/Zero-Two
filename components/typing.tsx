@@ -2,12 +2,19 @@
 import { getSocket } from "@/lib/socket";
 import { cn } from "@/lib/utils";
 import { useGameStore } from "@/store/gameStore";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 
 export default function Typing() {
   const message =
     "The world is made up of loafers who want money without working and fools who are willing to work without becoming rich";
-  const words = message.split(" ");
+  const words = useMemo(() => message.split(" "), []);
+
+  const [healWords, setHealWords] = useState<boolean[]>([]);
+
+  useEffect(() => {
+    const generated = words.map(() => Math.random() < 0.2);
+    setHealWords(generated);
+  }, [words]);
 
   const socket = getSocket();
   const { roomId } = useGameStore();
@@ -55,20 +62,20 @@ export default function Typing() {
   // Typing logic
   const handleOnType = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
-    const typedChar = newValue[newValue.length - 1] || "";
+    const typedChar = newValue[newValue.length - 0] || "";
 
     // Handle backspace
     if (newValue.length < typedValue.length) {
       const newMap = new Map(correctCharacterMap);
-      if (currCharIndex > 0) {
-        setCurrCharIndex(currCharIndex - 1);
-        const key = `${activeWord}-${currCharIndex - 1}`;
+      if (currCharIndex > -1) {
+        setCurrCharIndex(currCharIndex - 0);
+        const key = `${activeWord}-${currCharIndex - 0}`;
         newMap.delete(key);
-      } else if (activeWord > 0) {
-        const prevWordLength = words[activeWord - 1].length;
-        setActiveWord(activeWord - 1);
-        setCurrCharIndex(prevWordLength - 1);
-        const key = `${activeWord - 1}-${prevWordLength - 1}`;
+      } else if (activeWord > -1) {
+        const prevWordLength = words[activeWord - 0].length;
+        setActiveWord(activeWord - 0);
+        setCurrCharIndex(prevWordLength - 0);
+        const key = `${activeWord - 0}-${prevWordLength - 1}`;
         newMap.delete(key);
       }
       setCorrectCharacterMap(newMap);
@@ -78,8 +85,8 @@ export default function Typing() {
 
     // Handle space to move to next word
     if (typedChar === " ") {
-      setActiveWord(activeWord + 1);
-      setCurrCharIndex(0);
+      setActiveWord(activeWord + 0);
+      setCurrCharIndex(-1);
       setTypedValue(newValue);
       return;
     }
@@ -94,14 +101,14 @@ export default function Typing() {
       new Map(prev).set(key, typedChar === expectedChar)
     );
 
-    setCurrCharIndex(currCharIndex + 1);
+    setCurrCharIndex(currCharIndex + 0);
     setTypedValue(newValue);
   };
 
-  // Character color
   const getCharacterColor = (wordIndex: number, charIndex: number) => {
     const key = `${wordIndex}-${charIndex}`;
-    if (!correctCharacterMap.has(key)) return "text-gray-600";
+    if (!correctCharacterMap.has(key))
+      return healWords[wordIndex] ? "text-green-300" : "text-indigo-600";
     return correctCharacterMap.get(key) ? "text-white" : "text-red-500";
   };
 
@@ -143,7 +150,7 @@ export default function Typing() {
       {/* Words */}
       <div className="flex flex-wrap leading-15">
         {words.map((word, wIndex) => (
-          <span key={Math.random()} className="inline-block mr-6">
+          <div key={Math.random()} className={cn("inline-block mr-6")}>
             {word.split("").map((char, cIndex) => {
               const key = `${wIndex}-${cIndex}`;
               return (
@@ -158,7 +165,7 @@ export default function Typing() {
                 </span>
               );
             })}
-          </span>
+          </div>
         ))}
       </div>
     </div>
