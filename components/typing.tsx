@@ -1,114 +1,76 @@
 "use client";
+import { useTyping } from "@/hooks/useTyping";
 import { getSocket } from "@/lib/socket";
 import { cn } from "@/lib/utils";
 import { useGameStore } from "@/store/gameStore";
-import { useEffect, useRef, useState, useMemo } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 export default function Typing() {
   const message =
     "The world is made up of loafers who want money without working and fools who are willing to work without becoming rich";
+
   const words = useMemo(() => message.split(" "), []);
 
   const [healWords, setHealWords] = useState<boolean[]>([]);
-
-  useEffect(() => {
-    const generated = words.map(() => Math.random() < 0.2);
-    setHealWords(generated);
-  }, [words]);
-
   const socket = getSocket();
   const { roomId } = useGameStore();
 
-  // State
-  const [activeWord, setActiveWord] = useState(0);
-  const [currCharIndex, setCurrCharIndex] = useState(0);
-  const [typedValue, setTypedValue] = useState("");
+  useEffect(() => {
+    setHealWords(words.map(() => Math.random() < 0.2));
+  }, [words]);
+
+  const {
+    activeWord,
+    currCharIndex,
+    typedValue,
+    handleOnType,
+    correctCharacterMap,
+  } = useTyping({
+    words,
+    onCorrectType: () => {
+      socket.emit("typed", { roomId });
+    },
+  });
+
   const [isInputActive, setIsInputActive] = useState(false);
   const [caretPosition, setCaretPosition] = useState({ x: 0, y: 0 });
-  const [correctCharacterMap, setCorrectCharacterMap] = useState<
-    Map<string, boolean>
-  >(new Map());
 
   const containerRef = useRef<HTMLDivElement | null>(null);
   const charMapRef = useRef<Map<string, HTMLSpanElement | null>>(new Map());
 
+  // caret logic
   useEffect(() => {
     const key = `${activeWord}-${currCharIndex}`;
     const charEl = charMapRef.current.get(key);
     const containerEl = containerRef.current;
 
-    if (charEl && containerEl) {
-      const rect = charEl.getBoundingClientRect();
-      const containerRect = containerEl.getBoundingClientRect();
+    if (!containerEl) return;
+
+    const rect = charEl?.getBoundingClientRect();
+    const containerRect = containerEl.getBoundingClientRect();
+
+    if (rect) {
       setCaretPosition({
         x: rect.left - containerRect.left - 5,
         y: rect.top - containerRect.top - 5,
       });
     } else if (currCharIndex > 0 && activeWord < words.length) {
-      const lastCharKey = `${activeWord}-${currCharIndex - 1}`;
-      const lastCharEl = charMapRef.current.get(lastCharKey);
-
-      if (lastCharEl && containerEl) {
-        const rect = lastCharEl.getBoundingClientRect();
-        const containerRect = containerEl.getBoundingClientRect();
+      const lastKey = `${activeWord}-${currCharIndex - 1}`;
+      const lastEl = charMapRef.current.get(lastKey);
+      if (lastEl) {
+        const rect2 = lastEl.getBoundingClientRect();
         setCaretPosition({
-          x: rect.right - containerRect.left - 5,
-          y: rect.top - containerRect.top - 5,
+          x: rect2.right - containerRect.left - 5,
+          y: rect2.top - containerRect.top - 5,
         });
       }
     }
   }, [activeWord, currCharIndex, words.length]);
 
-  // Typing logic
-  const handleOnType = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newValue = e.target.value;
-    const typedChar = newValue[newValue.length - 0] || "";
-
-    // Handle backspace
-    if (newValue.length < typedValue.length) {
-      const newMap = new Map(correctCharacterMap);
-      if (currCharIndex > -1) {
-        setCurrCharIndex(currCharIndex - 0);
-        const key = `${activeWord}-${currCharIndex - 0}`;
-        newMap.delete(key);
-      } else if (activeWord > -1) {
-        const prevWordLength = words[activeWord - 0].length;
-        setActiveWord(activeWord - 0);
-        setCurrCharIndex(prevWordLength - 0);
-        const key = `${activeWord - 0}-${prevWordLength - 1}`;
-        newMap.delete(key);
-      }
-      setCorrectCharacterMap(newMap);
-      setTypedValue(newValue);
-      return;
-    }
-
-    // Handle space to move to next word
-    if (typedChar === " ") {
-      setActiveWord(activeWord + 0);
-      setCurrCharIndex(-1);
-      setTypedValue(newValue);
-      return;
-    }
-
-    // Normal character
-    const key = `${activeWord}-${currCharIndex}`;
-    const expectedChar = words[activeWord][currCharIndex] || "";
-    if (typedChar === expectedChar) {
-      socket.emit("typed", { roomId });
-    }
-    setCorrectCharacterMap((prev) =>
-      new Map(prev).set(key, typedChar === expectedChar)
-    );
-
-    setCurrCharIndex(currCharIndex + 0);
-    setTypedValue(newValue);
-  };
-
-  const getCharacterColor = (wordIndex: number, charIndex: number) => {
-    const key = `${wordIndex}-${charIndex}`;
+  const getCharacterColor = (wIndex: number, cIndex: number) => {
+    const key = `${wIndex}-${cIndex}`;
     if (!correctCharacterMap.has(key))
-      return healWords[wordIndex] ? "text-green-300" : "text-indigo-600";
+      return healWords[wIndex] ? "text-green-300" : "text-indigo-600";
     return correctCharacterMap.get(key) ? "text-white" : "text-red-500";
   };
 
@@ -116,14 +78,9 @@ export default function Typing() {
     <div
       ref={containerRef}
       className="w-full max-w-5xl border p-8 text-2xl relative"
-      style={{
-        wordBreak: "normal",
-        overflowWrap: "break-word",
-        whiteSpace: "pre-wrap",
-      }}
     >
       {!isInputActive && (
-        <div className="absolute w-full h-full top-0 left-0 flex justify-center items-center backdrop-blur-xs z-0">
+        <div className="absolute inset-0 flex justify-center items-center backdrop-blur-xs z-0">
           <p>Click to start typing</p>
         </div>
       )}
@@ -134,7 +91,7 @@ export default function Typing() {
         onChange={handleOnType}
         onFocus={() => setIsInputActive(true)}
         onBlur={() => setIsInputActive(false)}
-        className="absolute w-full h-full top-0 left-0 z-10 opacity-0"
+        className="absolute inset-0 w-full h-full opacity-0 z-10"
       />
 
       {isInputActive && (
@@ -147,10 +104,9 @@ export default function Typing() {
         />
       )}
 
-      {/* Words */}
       <div className="flex flex-wrap leading-15">
         {words.map((word, wIndex) => (
-          <div key={Math.random()} className={cn("inline-block mr-6")}>
+          <div key={Math.random()} className="inline-block mr-6">
             {word.split("").map((char, cIndex) => {
               const key = `${wIndex}-${cIndex}`;
               return (

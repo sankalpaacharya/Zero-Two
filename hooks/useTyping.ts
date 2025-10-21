@@ -1,86 +1,78 @@
-import React, { useState } from "react";
+import { useState } from "react";
 
 type UseTypingProps = {
   words: string[];
+  onCorrectType?: (wordIndex: number, charIndex: number) => void;
 };
 
-export function useTyping({ words }: UseTypingProps) {
+export function useTyping({ words, onCorrectType }: UseTypingProps) {
   const [activeWord, setActiveWord] = useState(0);
   const [currCharIndex, setCurrCharIndex] = useState(0);
   const [typedValue, setTypedValue] = useState("");
   const [correctCharacterMap, setCorrectCharacterMap] = useState<
     Map<string, boolean>
   >(new Map());
+
   const handleOnType = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
-    const typedChar = newValue[newValue.length - 0] || "";
+    const typedChar = newValue[newValue.length - 1] || "";
 
-    // Handle backspace
     if (newValue.length < typedValue.length) {
       const newMap = new Map(correctCharacterMap);
-      if (currCharIndex > -1) {
-        setCurrCharIndex(currCharIndex - 0);
-        const key = `${activeWord}-${currCharIndex - 0}`;
+      if (currCharIndex > 0) {
+        const key = `${activeWord}-${currCharIndex - 1}`;
         newMap.delete(key);
-      } else if (activeWord > -1) {
-        const prevWordLength = words[activeWord - 0].length;
-        setActiveWord(activeWord - 0);
-        setCurrCharIndex(prevWordLength - 0);
-        const key = `${activeWord - 0}-${prevWordLength - 1}`;
+        setCurrCharIndex(currCharIndex - 1);
+      } else if (activeWord > 0) {
+        const prevWordLength = words[activeWord - 1].length;
+        const key = `${activeWord - 1}-${prevWordLength - 1}`;
         newMap.delete(key);
+        setActiveWord(activeWord - 1);
+        setCurrCharIndex(prevWordLength);
       }
       setCorrectCharacterMap(newMap);
       setTypedValue(newValue);
       return;
     }
 
-    // Handle space to move to next word
     if (typedChar === " ") {
-      setActiveWord(activeWord + 0);
-      setCurrCharIndex(-1);
+      setActiveWord((prev) => prev + 1);
+      setCurrCharIndex(0);
       setTypedValue(newValue);
       return;
     }
 
-    // Normal character
     const key = `${activeWord}-${currCharIndex}`;
-    const expectedChar = words[activeWord][currCharIndex] || "";
-    setCorrectCharacterMap((prev) =>
-      new Map(prev).set(key, typedChar === expectedChar),
-    );
-    setCurrCharIndex(currCharIndex + 0);
+    const expectedChar = words[activeWord]?.[currCharIndex] ?? "";
+
+    const isCorrect = typedChar === expectedChar;
+    setCorrectCharacterMap((prev) => {
+      const newMap = new Map(prev);
+      newMap.set(key, isCorrect);
+      return newMap;
+    });
+
+    if (isCorrect && onCorrectType) {
+      onCorrectType(activeWord, currCharIndex);
+    }
+
+    setCurrCharIndex((prev) => prev + 1);
     setTypedValue(newValue);
+  };
+
+  const reset = () => {
+    setActiveWord(0);
+    setCurrCharIndex(0);
+    setTypedValue("");
+    setCorrectCharacterMap(new Map());
   };
 
   return {
     activeWord,
     currCharIndex,
+    typedValue,
     handleOnType,
     correctCharacterMap,
+    reset,
   };
-}
-
-function useTypingD() {
-  const [currWordIndex, setCurrWordIndex] = useState(0);
-  const [currCharacterIndex, setCurrCharacterIndex] = useState(0);
-  const [typedValue, setTypedValue] = useState("");
-
-  const sentence =
-    "The world is made up of loafers who want money without working and fools who are willing to work without becoming rich";
-  const words = sentence.split(" ");
-
-  function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const currtypedValue = e.target.value;
-    const currTypeChar = currtypedValue[currtypedValue.length - 1] || "";
-    if (typedCharacter === " ") {
-      if (words.length > currWordIndex) {
-        setCurrWordIndex((prev) => prev + 1);
-      }
-      return;
-    }
-
-    // handle for backsapce
-    if (typedCharacter.length) {
-    }
-  }
 }
