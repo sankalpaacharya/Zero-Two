@@ -6,6 +6,7 @@ import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import Clock from "@/components/timer";
 import { useGameStore } from "@/store/gameStore";
+import AvatarDialog from "@/components/avatar-dialog";
 
 export default function Page() {
   const socket = getSocket();
@@ -33,33 +34,39 @@ export default function Page() {
   }, [opponentHealth]);
 
   return (
-    <div className="flex items-start flex-col justify-center h-screen gap-2 max-w-[120rem] mx-auto">
-      <Clock isRunning={isStarted} />
-      <div className="space-y-10 flex flex-col">
-        {/* <h2 className="text-xl text-red-600">{id}</h2> */}
-
-        {/* <div>
-          <p className="uppercase">Sanku</p>
-          <Progress
-            value={playerHealth}
-            className="w-md"
-            progressBg={getHealthColor(playerHealth)}
+    <div className="min-h-screen flex flex-col max-w-7xl mx-auto px-4 sm:px-6 py-6">
+      <header className="flex items-start justify-between gap-4 w-full">
+        <div className="flex gap-3">
+          <AvatarDialog
+            dialog="I will beat your ass"
+            avatar={1}
+            name="Sanku"
+            health={playerHealth}
+            getHealthColor={getHealthColor}
           />
         </div>
-
-        <div>
-          <p className="uppercase">Nishit</p>
-          <Progress
-            value={opponentHealth}
-            className="w-md"
-            progressBg={getHealthColor(opponentHealth)}
+        <div className="flex items-start gap-3">
+          <AvatarDialog
+            dialog="Try me!"
+            avatar={3}
+            name="Nishit"
+            className="order-1 sm:order-2"
+            health={opponentHealth}
+            getHealthColor={getHealthColor}
           />
-        </div> */}
-      </div>
+        </div>
+      </header>
 
-      <div className="w-full">
-        <Typing />
-      </div>
+      {/* Main Arena */}
+      <main className="flex-1 flex flex-col items-center justify-center">
+        <div className="mb-4 text-center">
+          <Clock isRunning={isStarted} />
+        </div>
+
+        <div className="w-full mb-10">
+          <Typing />
+        </div>
+      </main>
     </div>
   );
 }
