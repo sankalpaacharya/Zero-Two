@@ -31,11 +31,11 @@ export default function Page() {
   }, [opponentHealth]);
 
   return (
-    <div className="flex items-center flex-col border h-screen gap-2 max-w-7xl mx-auto">
-      <div className="space-y-10 mt-10 flex flex-col justify-center w-full items-center">
-        <h2 className="text-xl text-red-600">{id}</h2>
+    <div className="flex items-center flex-col justify-center h-screen gap-2 max-w-[120rem] mx-auto">
+      <div className="space-y-10 flex flex-col justify-center w-full items-center">
+        {/* <h2 className="text-xl text-red-600">{id}</h2> */}
 
-        <div>
+        {/* <div>
           <p className="uppercase">Sanku</p>
           <Progress
             value={playerHealth}
@@ -44,7 +44,6 @@ export default function Page() {
           />
         </div>
 
-        {/* Opponent Health */}
         <div>
           <p className="uppercase">Nishit</p>
           <Progress
@@ -52,10 +51,10 @@ export default function Page() {
             className="w-md"
             progressBg={getHealthColor(opponentHealth)}
           />
-        </div>
+        </div> */}
       </div>
 
-      <div className="mt-10">
+      <div className="">
         <Typing />
       </div>
     </div>
