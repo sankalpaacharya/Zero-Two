@@ -1,6 +1,6 @@
 "use client";
 import Typing from "@/components/typing";
-import { Progress } from "@/components/ui/8bit/progress";
+// ...existing code...
 import { getSocket } from "@/lib/socket";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -10,9 +10,9 @@ import AvatarDialog from "@/components/avatar-dialog";
 
 export default function Page() {
   const socket = getSocket();
-  const { id } = useParams();
+  const { id } = useParams(); // id is currently unused
   const [playerHealth, setPlayerHealth] = useState(100);
-  const [opponentHealth, setOpponentHealth] = useState(100);
+  const [opponentHealth, _setOpponentHealth] = useState(100);
   const { isStarted } = useGameStore();
 
   console.log("Page component rendered");

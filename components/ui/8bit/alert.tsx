@@ -40,7 +40,7 @@ function Alert({ children, ...props }: BitAlertProps) {
         className={cn(
           "relative rounded-none border-none bg-background",
           font !== "normal" && "retro",
-          className
+          className,
         )}
       >
         {children}
@@ -82,7 +82,7 @@ function AlertDescription({
     <ShadcnAlertDescription
       className={cn(
         "text-muted-foreground grid justify-items-start gap-1 text-sm [&_p]:leading-relaxed",
-        className
+        className,
       )}
       {...props}
     />
