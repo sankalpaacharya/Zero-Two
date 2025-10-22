@@ -8,14 +8,8 @@ import {
   CardTitle,
 } from "@/components/ui/8bit/card";
 import { Input } from "@/components/ui/8bit/input";
-import ChapterIntro from "@/components/ui/8bit/blocks/chapter-intro";
-import {
-  ChangeEvent,
-  ReactEventHandler,
-  useCallback,
-  useEffect,
-  useState,
-} from "react";
+// import ChapterIntro from "@/components/ui/8bit/blocks/chapter-intro";
+import { useState, useEffect, useCallback, ChangeEvent } from "react";
 import { getSocket } from "@/lib/socket";
 import { useGameStore } from "@/store/gameStore";
 import { redirect } from "next/navigation";
@@ -41,8 +35,12 @@ export default function Home() {
 function GameStart() {
   const [roomId, setRoomId] = useState("");
   const { setRoomId: addRoomId } = useGameStore();
-  const [name, setName] = useState(localStorage.getItem("name") || "");
+  const [name, setName] = useState("");
   const socket = getSocket();
+  useEffect(() => {
+    const name = localStorage.getItem("name") || "";
+    setName(name);
+  });
 
   const onNameChange = (e: ChangeEvent<HTMLInputElement>) => {
     const typedName = e.target.value;

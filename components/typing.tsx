@@ -95,7 +95,7 @@ export default function Typing() {
 
       {isInputActive && (
         <span
-          className="absolute w-1 h-8 bg-amber-400 transition-all duration-100 ease-out"
+          className="absolute w-1 h-6 bg-amber-400 transition-all duration-100 ease-out"
           style={{ top: `${caretPos.y}px`, left: `${caretPos.x}px` }}
         />
       )}
