@@ -37,8 +37,11 @@ export default function Typing() {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const charRefs = useRef<Map<string, HTMLSpanElement | null>>(new Map());
 
-  // Monkeytype-like behavior: when caret moves to the second visual line,
-  // drop the first line so the second becomes the new first line.
+  // 3-line viewport behavior:
+  // - Start typing on line 1.
+  // - When caret moves to line 2: do nothing (keep line 1 visible above).
+  // - When caret moves to line 3: drop line 1 so line 2 becomes line 1 (typed),
+  //   line 3 becomes line 2 (active), and a new line appears as line 3.
   useEffect(() => {
     if (!containerRef.current || words.length === 0) return;
     const containerRect = containerRef.current.getBoundingClientRect();
@@ -62,8 +65,37 @@ export default function Typing() {
     const activeTop = activeEl.getBoundingClientRect().top - containerRect.top;
     const lineThreshold = 18; // pixels; approximate single line height tolerance
 
-    // If the active caret is on the next visual line, compute how many words form the first line and drop them
-    if (activeTop > firstLineTop + lineThreshold) {
+    // Find where line 2 starts
+    let secondLineTop: number | null = null;
+    for (let i = 0; i < words.length; i++) {
+      const wordFirstChar =
+        charRefs.current.get(`${i}-0`) || charRefs.current.get(`${i}-1`);
+      if (!wordFirstChar) break;
+      const top = wordFirstChar.getBoundingClientRect().top - containerRect.top;
+      if (top > firstLineTop + lineThreshold / 2) {
+        secondLineTop = top;
+        break;
+      }
+    }
+
+    // If we don't even have a second line yet, nothing to do.
+    if (secondLineTop == null) return;
+
+    // Find where line 3 starts
+    let thirdLineTop: number | null = null;
+    for (let i = 0; i < words.length; i++) {
+      const wordFirstChar =
+        charRefs.current.get(`${i}-0`) || charRefs.current.get(`${i}-1`);
+      if (!wordFirstChar) break;
+      const top = wordFirstChar.getBoundingClientRect().top - containerRect.top;
+      if (top > secondLineTop + lineThreshold / 2) {
+        thirdLineTop = top;
+        break;
+      }
+    }
+
+    // Only shift when caret reaches line 3
+    if (thirdLineTop != null && activeTop > thirdLineTop - lineThreshold / 2) {
       let firstLineWordCount = 0;
       for (let i = 0; i < words.length; i++) {
         const wordFirstChar =
@@ -71,13 +103,11 @@ export default function Typing() {
         if (!wordFirstChar) break;
         const top =
           wordFirstChar.getBoundingClientRect().top - containerRect.top;
-        // use half threshold to be more lenient distinguishing same line
         if (top > firstLineTop + lineThreshold / 2) break;
         firstLineWordCount++;
       }
 
       if (firstLineWordCount > 0) {
-        // Avoid shifting if the active word would end up negative
         setWords((prev) => prev.slice(firstLineWordCount));
         shiftAfterRemovingWords(firstLineWordCount);
       }
@@ -148,7 +178,7 @@ export default function Typing() {
         />
       )}
 
-      <div className="flex flex-wrap leading-15 h-40">
+      <div className="flex flex-wrap leading-15 h-40 overflow-hidden">
         {words.map((word, wIndex) => (
           <span
             key={`word-${word}-${
