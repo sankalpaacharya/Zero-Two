@@ -15,8 +15,6 @@ export default function Page() {
   const [opponentHealth, _setOpponentHealth] = useState(100);
   const { isStarted } = useGameStore();
 
-  console.log("Page component rendered");
-
   useEffect(() => {
     const handleHealthDamage = () => {
       setPlayerHealth((prev) => Math.max(prev - 1, 0));
@@ -34,39 +32,41 @@ export default function Page() {
   }, [opponentHealth]);
 
   return (
-    <div className="min-h-screen flex flex-col max-w-7xl mx-auto px-4 sm:px-6 py-6">
-      <header className="flex items-start justify-between gap-4 w-full">
-        <div className="flex gap-3">
-          <AvatarDialog
-            dialog="I will beat your ass"
-            avatar={1}
-            name="Sanku"
-            health={playerHealth}
-            getHealthColor={getHealthColor}
-          />
-        </div>
-        <div className="flex items-start gap-3">
-          <AvatarDialog
-            dialog="Try me!"
-            avatar={3}
-            name="Nishit"
-            className="order-1 sm:order-2"
-            health={opponentHealth}
-            getHealthColor={getHealthColor}
-          />
-        </div>
-      </header>
+    <div className="w-full h-screen bg-image">
+      <div className="min-h-screen flex flex-col max-w-7xl mx-auto px-4 sm:px-6 py-6 bg-cover bg-center bg-no-repeat">
+        <header className="flex items-start justify-between gap-4 w-full">
+          <div className="flex gap-3">
+            <AvatarDialog
+              dialog="I will beat your ass"
+              avatar={1}
+              name="Sanku"
+              health={playerHealth}
+              getHealthColor={getHealthColor}
+            />
+          </div>
+          <div className="flex items-start gap-3">
+            <AvatarDialog
+              dialog="Try me!"
+              avatar={3}
+              name="Nishit"
+              className="order-1 sm:order-2"
+              health={opponentHealth}
+              getHealthColor={getHealthColor}
+            />
+          </div>
+        </header>
 
-      {/* Main Arena */}
-      <main className="flex-1 flex flex-col items-center justify-center">
-        <div className="mb-4 text-center">
-          <Clock isRunning={isStarted} />
-        </div>
+        {/* Main Arena */}
+        <main className="flex-1 flex flex-col items-center justify-center">
+          <div className="mb-4 text-center">
+            <Clock isRunning={isStarted} />
+          </div>
 
-        <div className="w-full mb-10">
-          <Typing />
-        </div>
-      </main>
+          <div className="w-full mb-10">
+            <Typing />
+          </div>
+        </main>
+      </div>
     </div>
   );
 }

@@ -4,6 +4,7 @@ import { getSocket } from "@/lib/socket";
 import { cn } from "@/lib/utils";
 import { useGameStore } from "@/store/gameStore";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { Card } from "./ui/8bit/card";
 
 export default function Typing() {
   const message =
@@ -64,15 +65,22 @@ export default function Typing() {
   const getCharacterColor = (wIndex: number, cIndex: number) => {
     const key = `${wIndex}-${cIndex}`;
     if (!correctCharacterMap.has(key))
-      return healWords[wIndex] ? "text-green-700/50" : "text-white/50";
-    return correctCharacterMap.get(key) ? "text-white" : "text-red-500";
+      return healWords[wIndex] ? "text-green-400/70" : "text-white/60";
+    return correctCharacterMap.get(key)
+      ? "text-white font-semibold"
+      : "text-red-400 font-semibold";
   };
 
   return (
-    <div ref={containerRef} className="w-full text-lg relative">
+    <Card
+      ref={containerRef}
+      className="w-full text-lg relative  backdrop-blur-sm rounded-lg p-6 "
+    >
       {!isInputActive && (
         <div className="absolute inset-0 flex justify-center items-center backdrop-blur-xs z-0">
-          <p>Click to start typing</p>
+          <p className="text-white font-semibold text-xl">
+            Click to start typing
+          </p>
         </div>
       )}
 
@@ -87,7 +95,7 @@ export default function Typing() {
 
       {isInputActive && (
         <span
-          className="absolute w-1 h-8 bg-amber-400 transition-all duration-200 ease-in-out"
+          className="absolute w-1 h-8 bg-amber-400 transition-all duration-100 ease-out"
           style={{ top: `${caretPos.y}px`, left: `${caretPos.x}px` }}
         />
       )}
@@ -118,6 +126,6 @@ export default function Typing() {
           </span>
         ))}
       </div>
-    </div>
+    </Card>
   );
 }

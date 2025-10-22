@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Card } from "./ui/8bit/card";
 
 function Clock({ startMinutes = 1, isRunning = true }) {
   const [secondsLeft, setSecondsLeft] = useState(startMinutes * 60);
@@ -19,9 +20,9 @@ function Clock({ startMinutes = 1, isRunning = true }) {
   const seconds = (secondsLeft % 60).toString().padStart(2, "0");
 
   return (
-    <div className="text-muted-foreground/60">
+    <Card className="text-white font-bold text-2xl backdrop-blur-sm px-6 py-3 rounded-lg border shadow-lg">
       {minutes}:{seconds}
-    </div>
+    </Card>
   );
 }
 

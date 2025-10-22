@@ -4,6 +4,7 @@ import {
   AvatarImage,
 } from "@/components/ui/8bit/avatar";
 import { Alert, AlertTitle } from "@/components/ui/8bit/alert";
+import { Card } from "./ui/8bit/card";
 import { Progress } from "@/components/ui/8bit/progress";
 
 type AvatarDialogProps = {
@@ -29,7 +30,7 @@ export default function AvatarDialog({
 }: AvatarDialogProps) {
   return (
     <div className={className}>
-      <div className="flex flex-col items-start gap-1">
+      <Card className="flex flex-col items-start gap-1 backdrop-blur-sm p-4 rounded-lg border border-white/10">
         <div className="flex items-center gap-3">
           <Avatar className="size-12">
             <AvatarImage
@@ -40,14 +41,16 @@ export default function AvatarDialog({
               {(name?.slice(0, 2) ?? "PL").toUpperCase()}
             </AvatarFallback>
           </Avatar>
-          {name && <p className="uppercase text-sm opacity-80">{name}</p>}
+          {name && (
+            <p className="uppercase text-sm text-white font-semibold">{name}</p>
+          )}
         </div>
         <Progress
           value={health}
           className="h-3 w-40 sm:w-56 mt-1"
           progressBg={getHealthColor(health)}
         />
-      </div>
+      </Card>
       {dialog && dialog.trim().length > 0 && (
         <Alert className="mt-2">
           <AlertTitle className="text-xs sm:text-sm">{dialog}</AlertTitle>

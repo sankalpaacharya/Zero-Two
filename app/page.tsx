@@ -9,22 +9,29 @@ import {
 } from "@/components/ui/8bit/card";
 import { Input } from "@/components/ui/8bit/input";
 import ChapterIntro from "@/components/ui/8bit/blocks/chapter-intro";
-import { useCallback, useEffect, useState } from "react";
+import {
+  ChangeEvent,
+  ReactEventHandler,
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
 import { getSocket } from "@/lib/socket";
 import { useGameStore } from "@/store/gameStore";
 import { redirect } from "next/navigation";
+import { toast } from "@/components/ui/8bit/toast";
 
 export default function Home() {
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
+    <div className="min-h-screen flex items-center justify-center p-4 bg-image2">
       <div className="flex flex-col items-center gap-8 w-full max-w-2xl">
-        <ChapterIntro
+        {/* <ChapterIntro
           title="Type Kill"
           backgroundSrc="/images/keyboards.png"
           darken={10}
           subtitle="Type fast to kill your op"
           align="center"
-        />
+        /> */}
         <GameStart />
       </div>
     </div>
@@ -34,17 +41,32 @@ export default function Home() {
 function GameStart() {
   const [roomId, setRoomId] = useState("");
   const { setRoomId: addRoomId } = useGameStore();
+  const [name, setName] = useState(localStorage.getItem("name") || "");
   const socket = getSocket();
 
+  const onNameChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const typedName = e.target.value;
+    setName(() => typedName);
+    localStorage.setItem("name", typedName);
+  };
+
   const createRoom = useCallback(() => {
+    if (name.trim() === "") {
+      toast("⛩️ Please enter your name");
+      return;
+    }
     socket.emit("createRoom");
-  }, [socket]);
+  }, [socket, name]);
 
   const joinRoom = useCallback(() => {
+    if (name.trim() === "") {
+      toast("⛩️ Please enter your name");
+      return;
+    }
     socket.emit("joinRoom", { roomId });
     addRoomId(roomId);
     redirect(`/game/${roomId}`);
-  }, [socket, roomId, addRoomId]);
+  }, [socket, roomId, addRoomId, name]);
 
   useEffect(() => {
     socket.on("joinedRoom", (payload) => {
@@ -60,6 +82,12 @@ function GameStart() {
         <CardDescription>kill the op with your speed</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
+        <Input
+          type="text"
+          placeholder="Enter your name"
+          value={name}
+          onChange={onNameChange}
+        />
         <Input
           type="text"
           placeholder="Enter a room Id"
