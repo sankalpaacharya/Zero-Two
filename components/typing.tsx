@@ -3,14 +3,14 @@ import { useTyping } from "@/hooks/useTyping";
 import { getSocket } from "@/lib/socket";
 import { cn } from "@/lib/utils";
 import { useGameStore } from "@/store/gameStore";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Card } from "./ui/8bit/card";
 
 export default function Typing() {
   const message =
-    "The world is made up of loafers who want money without working and fools who are willing to work without becoming rich";
+    "The world is made up of loafers who want money without working and fools who are willing to work without becoming rich The world is made up of loafers who want money without working and fools who are willing to work without becoming richThe world is made up of loafers who want money without working and fools who are willing to work without becoming rich ";
 
-  const words = useMemo(() => message.split(" "), []);
+  const [words, setWords] = useState(message.split(" "));
   const socket = getSocket();
   const { roomId } = useGameStore();
 
@@ -25,6 +25,7 @@ export default function Typing() {
     typedValue,
     handleOnType,
     correctCharacterMap,
+    shiftAfterRemovingWords,
   } = useTyping({
     words,
     onCorrectType: () => socket.emit("typed", { roomId }),
@@ -35,6 +36,53 @@ export default function Typing() {
 
   const containerRef = useRef<HTMLDivElement | null>(null);
   const charRefs = useRef<Map<string, HTMLSpanElement | null>>(new Map());
+
+  // Monkeytype-like behavior: when caret moves to the second visual line,
+  // drop the first line so the second becomes the new first line.
+  useEffect(() => {
+    if (!containerRef.current || words.length === 0) return;
+    const containerRect = containerRef.current.getBoundingClientRect();
+
+    const firstWordEl = charRefs.current.get("0-0");
+    if (!firstWordEl) return;
+
+    const firstLineTop =
+      firstWordEl.getBoundingClientRect().top - containerRect.top;
+
+    // Try to get the active character element; fallback to first char of active word
+    const activeKeyCandidate = `${activeWord}-${Math.max(
+      0,
+      Math.min(currCharIndex, (words[activeWord]?.length ?? 1) - 1)
+    )}`;
+    const activeEl =
+      charRefs.current.get(activeKeyCandidate) ||
+      charRefs.current.get(`${activeWord}-0`);
+    if (!activeEl) return;
+
+    const activeTop = activeEl.getBoundingClientRect().top - containerRect.top;
+    const lineThreshold = 18; // pixels; approximate single line height tolerance
+
+    // If the active caret is on the next visual line, compute how many words form the first line and drop them
+    if (activeTop > firstLineTop + lineThreshold) {
+      let firstLineWordCount = 0;
+      for (let i = 0; i < words.length; i++) {
+        const wordFirstChar =
+          charRefs.current.get(`${i}-0`) || charRefs.current.get(`${i}-1`);
+        if (!wordFirstChar) break;
+        const top =
+          wordFirstChar.getBoundingClientRect().top - containerRect.top;
+        // use half threshold to be more lenient distinguishing same line
+        if (top > firstLineTop + lineThreshold / 2) break;
+        firstLineWordCount++;
+      }
+
+      if (firstLineWordCount > 0) {
+        // Avoid shifting if the active word would end up negative
+        setWords((prev) => prev.slice(firstLineWordCount));
+        shiftAfterRemovingWords(firstLineWordCount);
+      }
+    }
+  }, [activeWord, currCharIndex, words, shiftAfterRemovingWords]);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -74,7 +122,7 @@ export default function Typing() {
   return (
     <Card
       ref={containerRef}
-      className="w-full text-lg relative  backdrop-blur-sm rounded-lg p-6 "
+      className=" text-lg relative  backdrop-blur-sm rounded-lg p-6"
     >
       {!isInputActive && (
         <div className="absolute inset-0 flex justify-center items-center backdrop-blur-xs z-0">
@@ -95,12 +143,12 @@ export default function Typing() {
 
       {isInputActive && (
         <span
-          className="absolute w-1 h-6 bg-amber-400 transition-all duration-100 ease-out"
+          className="absolute w-1 caret h-6 bg-amber-400 transition-all duration-100 ease-out"
           style={{ top: `${caretPos.y}px`, left: `${caretPos.x}px` }}
         />
       )}
 
-      <div className="flex flex-wrap leading-15">
+      <div className="flex flex-wrap leading-15 h-40">
         {words.map((word, wIndex) => (
           <span
             key={`word-${word}-${
