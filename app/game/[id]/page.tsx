@@ -13,7 +13,7 @@ export default function Page() {
   const { id } = useParams(); // id is currently unused
   const [playerHealth, setPlayerHealth] = useState(100);
   const [opponentHealth, _setOpponentHealth] = useState(100);
-  const { isStarted } = useGameStore();
+  const { isStarted, playerLives, opponentLives } = useGameStore();
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
@@ -64,6 +64,7 @@ export default function Page() {
               avatar={1}
               name="Sanku"
               health={playerHealth}
+              lives={playerLives}
               getHealthColor={getHealthColor}
             />
           </div>
@@ -74,6 +75,7 @@ export default function Page() {
               name="Nishit"
               className="order-1 sm:order-2"
               health={opponentHealth}
+              lives={opponentLives}
               getHealthColor={getHealthColor}
             />
           </div>

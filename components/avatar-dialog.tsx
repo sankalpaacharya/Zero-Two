@@ -6,6 +6,7 @@ import {
 import { Alert, AlertTitle } from "@/components/ui/8bit/alert";
 import { Card } from "./ui/8bit/card";
 import { Progress } from "@/components/ui/8bit/progress";
+import Image from "next/image";
 
 type AvatarDialogProps = {
   dialog?: string;
@@ -13,6 +14,7 @@ type AvatarDialogProps = {
   name?: string;
   className?: string;
   health?: number;
+  lives?: number;
   getHealthColor?: (value: number) => string;
 };
 
@@ -22,6 +24,7 @@ export default function AvatarDialog({
   name,
   className,
   health = 100,
+  lives = 3,
   getHealthColor = (value: number) => {
     if (value > 70) return "bg-green-500";
     if (value > 30) return "bg-yellow-500";
@@ -41,9 +44,27 @@ export default function AvatarDialog({
               {(name?.slice(0, 2) ?? "PL").toUpperCase()}
             </AvatarFallback>
           </Avatar>
-          {name && (
-            <p className="uppercase text-sm text-white font-semibold">{name}</p>
-          )}
+          <div className="flex flex-col gap-1">
+            {name && (
+              <p className="uppercase text-sm text-white font-semibold">
+                {name}
+              </p>
+            )}
+            <div className="flex gap-1">
+              {Array.from({ length: 3 }).map((_, index) => (
+                <Image
+                  key={Math.random()}
+                  src="/images/life.png"
+                  alt="life"
+                  width={20}
+                  height={20}
+                  className={`transition-opacity duration-300 ${
+                    index < lives ? "opacity-100" : "opacity-20 grayscale"
+                  }`}
+                />
+              ))}
+            </div>
+          </div>
         </div>
         <Progress
           value={health}
