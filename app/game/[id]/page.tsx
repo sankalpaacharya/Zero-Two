@@ -3,7 +3,7 @@ import Typing from "@/components/typing";
 // ...existing code...
 import { getSocket } from "@/lib/socket";
 import { useParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import Clock from "@/components/timer";
 import { useGameStore } from "@/store/gameStore";
 import AvatarDialog from "@/components/avatar-dialog";
@@ -14,6 +14,29 @@ export default function Page() {
   const [playerHealth, setPlayerHealth] = useState(100);
   const [opponentHealth, _setOpponentHealth] = useState(100);
   const { isStarted } = useGameStore();
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  useEffect(() => {
+    const audio = new Audio("/sounds/bg-music.mp3");
+    audio.loop = true;
+    audio.volume = 0.7;
+    audioRef.current = audio;
+
+    const playAudio = async () => {
+      try {
+        await audio.play();
+      } catch (error) {
+        console.log("Audio playback failed:", error);
+      }
+    };
+
+    playAudio();
+
+    return () => {
+      audio.pause();
+      audio.currentTime = 0;
+    };
+  }, []);
 
   useEffect(() => {
     const handleHealthDamage = () => {
