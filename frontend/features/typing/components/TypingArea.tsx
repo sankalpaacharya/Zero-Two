@@ -72,7 +72,6 @@ export function TypingArea({
         className="absolute inset-0 w-full h-full opacity-0 z-10"
         autoComplete="off"
         autoCorrect="off"
-        autoCapitalize="off"
         spellCheck="false"
       />
 
