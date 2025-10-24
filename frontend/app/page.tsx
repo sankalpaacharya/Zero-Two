@@ -34,7 +34,7 @@ export default function Home() {
 
 function GameStart() {
   const [roomId, setRoomId] = useState("");
-  const { setRoomId: addRoomId, setGameData } = useGameStore();
+  const { setRoomId: addRoomId, setGameData, setPlayers } = useGameStore();
   const [name, setName] = useState("");
   const socket = getSocket();
   useEffect(() => {
@@ -71,10 +71,19 @@ function GameStart() {
   useEffect(() => {
     socket.on(
       "joinedRoom",
-      (payload: { roomId: string; playerName?: string }) => {
+      (payload: {
+        roomId: string;
+        playerName?: string;
+        players?: Record<string, string>;
+      }) => {
         addRoomId(payload.roomId);
         // payload may include the player's name (server will send it when creating a room)
         if (payload.playerName) setGameData({ myName: payload.playerName });
+        // payload may include the current players mapping (socketId -> name)
+        if (payload.players) {
+          const names = Object.values(payload.players);
+          setPlayers(names);
+        }
         redirect(`/game/${payload.roomId}`);
       }
     );

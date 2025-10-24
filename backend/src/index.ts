@@ -52,7 +52,7 @@ const httpServer = serve({
   port: 3001,
 });
 
-const io = new Server(httpServer as HTTPServer, { cors: { origin: "http://localhost:3000" } });
+const io = new Server(httpServer as HTTPServer, { cors: { origin: ["http://localhost:3000", "http://10.30.105.190:3000"] } });
 
 io.on("connection", (socket) => {
   console.log("New connection:", socket.id);
@@ -64,13 +64,14 @@ io.on("connection", (socket) => {
   socket.on("createRoom", async (payload: any) => {
     try {
       const playerName = payload?.playerName ?? payload?.name ?? "";
-      const roomId = await createRoomRedis(socket.id, playerName);
-      socket.join(roomId);
-      // send room id and playerName back to creator
-      socket.emit("joinedRoom", { roomId, playerName });
+  const roomId = await createRoomRedis(socket.id, playerName);
+  socket.join(roomId);
+  // fetch players and send room id, playerName and players map back to creator
+  const players = await getPlayersByRoom(roomId);
+  socket.emit("joinedRoom", { roomId, playerName, players });
 
-      // send updated players to room (only this player for now)
-      io.in(roomId).emit("playersUpdate", await getPlayersByRoom(roomId));
+  // send updated players to room (only this player for now)
+  io.in(roomId).emit("playersUpdate", players);
     } catch (err) {
       console.error(err);
       socket.emit("error", "Could not create room");
@@ -81,14 +82,14 @@ io.on("connection", (socket) => {
   socket.on("joinRoom", async (payload: any) => {
     try {
       const playerName = payload?.playerName ?? payload?.name ?? "";
-      const players = await joinRoomRedis(payload.roomId, socket.id, playerName);
-      socket.join(payload.roomId);
+  const players = await joinRoomRedis(payload.roomId, socket.id, playerName);
+  socket.join(payload.roomId);
 
-      // optionally inform the joining socket it joined
-      socket.emit("joinedRoom", { roomId: payload.roomId, playerName });
+  // optionally inform the joining socket it joined and include current players map
+  socket.emit("joinedRoom", { roomId: payload.roomId, playerName, players });
 
-      // broadcast updated players list to room
-      io.in(payload.roomId).emit("playersUpdate", players);
+  // broadcast updated players list to room
+  io.in(payload.roomId).emit("playersUpdate", players);
     } catch (err) {
       console.error(err);
       socket.emit("error", (err as Error).message);

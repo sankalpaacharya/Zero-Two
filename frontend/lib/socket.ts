@@ -4,7 +4,7 @@ let socket: Socket;
 
 export const getSocket = () => {
   if (!socket) {
-    socket = io("http://localhost:3001", { autoConnect: true });
+    socket = io("http://10.30.105.190:3001", { autoConnect: true });
 
     socket.on("connect", () => {
       console.log("✅ Socket connected:", socket.id);

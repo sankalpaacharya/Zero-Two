@@ -13,7 +13,7 @@ interface UseTypingBattleConfig {
  */
 export function useTypingBattle({ words, roomId }: UseTypingBattleConfig) {
   const socket = getSocket();
-  const { setIsStarted, gameData,setGameData} = useGameStore();
+  const { setIsStarted, gameData,setGameData,updateOpponentHealth} = useGameStore();
   const [isGameStarted, setIsGameStarted] = useState(false);
 
   // Use core typing functionality
@@ -22,6 +22,8 @@ export function useTypingBattle({ words, roomId }: UseTypingBattleConfig) {
     onCorrectChar: () => {
       // Send typing event to opponent on correct character
       socket.emit("typed", { roomId });
+      updateOpponentHealth(-1);
+
     },
     onType: (state) => {
       // Start the game on first keystroke
@@ -35,7 +37,7 @@ export function useTypingBattle({ words, roomId }: UseTypingBattleConfig) {
       console.log("user completed typing a word");
       if(words[wordIndex]===typedString.split(" ")[wordIndex]) {
         if(gameData.healWords[wordIndex]){
-        socket.emit("healthUpdate",{roomId})
+        socket.emit("healthHeal",{roomId})
         setGameData({...gameData,myHealth:100});
         }
       }
