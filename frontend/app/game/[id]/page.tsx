@@ -11,8 +11,14 @@ import AvatarDialog from "@/components/avatar-dialog";
 export default function Page() {
   const socket = getSocket();
   const { id } = useParams(); // id is currently unused
-  const { isStarted, gameData, updateMyHealth, setPlayers, setGameData } =
-    useGameStore();
+  const {
+    isStarted,
+    gameData,
+    updateMyHealth,
+    setPlayers,
+    setGameData,
+    updateOpponentHealth,
+  } = useGameStore();
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
@@ -42,7 +48,12 @@ export default function Page() {
       updateMyHealth(-1);
     };
 
-    const handleHealthHeal = () => {};
+    const handleHealthHeal = (payload: { health?: number; from?: string }) => {
+      const healedValue =
+        typeof payload?.health === "number" ? payload.health : 100;
+      // other player healed -> update opponent's health in our store to match
+      setGameData({ opponentHealth: healedValue });
+    };
 
     socket.on("healthDamage", handleHealthDamage);
     socket.on("healthHeal", handleHealthHeal);

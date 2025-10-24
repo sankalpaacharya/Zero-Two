@@ -33,15 +33,17 @@ export function useTypingBattle({ words, roomId }: UseTypingBattleConfig) {
       }
     },
 
-    onWordComplete:(wordIndex,typedString)=>{
+    onWordComplete: (wordIndex, typedString) => {
       console.log("user completed typing a word");
-      if(words[wordIndex]===typedString.split(" ")[wordIndex]) {
-        if(gameData.healWords[wordIndex]){
-        socket.emit("healthHeal",{roomId})
-        setGameData({...gameData,myHealth:100});
+      if (words[wordIndex] === typedString.split(" ")[wordIndex]) {
+        if (gameData.healWords[wordIndex]) {
+          // restore full health locally
+          setGameData({ myHealth: 100 });
+          // inform opponent(s) in the room about this player's full heal
+          socket.emit("healthHeal", { roomId, health: 100 });
         }
       }
-    }
+    },
   });
 
   return {

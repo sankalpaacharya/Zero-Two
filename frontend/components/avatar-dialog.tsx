@@ -53,7 +53,7 @@ export default function AvatarDialog({
             <div className="flex gap-1">
               {Array.from({ length: 3 }).map((_, index) => (
                 <Image
-                  key={Math.random()}
+                  key={index}
                   src="/images/life.png"
                   alt="life"
                   width={20}
@@ -61,6 +61,9 @@ export default function AvatarDialog({
                   className={`transition-opacity duration-300 ${
                     index < lives ? "opacity-100" : "opacity-20 grayscale"
                   }`}
+                  // make image rendering stable and avoid layout shifts
+                  loading="eager"
+                  draggable={false}
                 />
               ))}
             </div>

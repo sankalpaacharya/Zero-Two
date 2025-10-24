@@ -91,7 +91,7 @@ export const useGameStore = create<GameState>(
         set((state) => ({
           gameData: {
             ...state.gameData,
-            myHealth: Math.max(0, state.gameData.myHealth + amount),
+            myHealth: Math.min(100,Math.max(0, (state.gameData.myHealth + amount)%100)),
           },
         })),
 
@@ -99,7 +99,7 @@ export const useGameStore = create<GameState>(
         set((state) => ({
           gameData: {
             ...state.gameData,
-            opponentHealth: Math.max(0, state.gameData.opponentHealth + amount),
+            opponentHealth: Math.min(100,Math.max(0, (state.gameData.opponentHealth + amount)%100)),
           },
         })),
 

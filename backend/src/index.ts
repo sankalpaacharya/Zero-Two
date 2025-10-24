@@ -103,9 +103,16 @@ io.on("connection", (socket) => {
   });
 
   // Player completed a word and heals
-  socket.on("healthHeal", (payload: { roomId: string }) => {
-    console.log("Heal triggered for room:", payload.roomId);
-    socket.to(payload.roomId).emit("healthHeal", { health: "healed" });
+  socket.on("healthHeal", (payload: any) => {
+    try {
+      const roomId = payload?.roomId;
+      const health = typeof payload?.health === "number" ? payload.health : 100;
+      console.log("Heal triggered for room:", roomId, "by:", socket.id, "-> health:", health);
+      // notify other sockets in the room about the heal and include the health value
+      socket.to(roomId).emit("healthHeal", { health, from: socket.id });
+    } catch (err) {
+      console.error("Error handling healthHeal", err);
+    }
   });
 
   // Handle disconnect
