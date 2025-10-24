@@ -11,9 +11,8 @@ import AvatarDialog from "@/components/avatar-dialog";
 export default function Page() {
   const socket = getSocket();
   const { id } = useParams(); // id is currently unused
-  const [playerHealth, setPlayerHealth] = useState(100);
-  const [opponentHealth, _setOpponentHealth] = useState(100);
-  const { isStarted, playerLives, opponentLives } = useGameStore();
+  const { isStarted, gameData, updateMyHealth, setPlayers, setGameData } =
+    useGameStore();
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
@@ -40,19 +39,48 @@ export default function Page() {
 
   useEffect(() => {
     const handleHealthDamage = () => {
-      setPlayerHealth((prev) => Math.max(prev - 1, 0));
+      updateMyHealth(-1);
     };
 
+    const handleHealthHeal = () => {};
+
     socket.on("healthDamage", handleHealthDamage);
+    socket.on("healthHeal", handleHealthHeal);
+
+    // update players list and names when server sends players info
+    const handlePlayersUpdate = (playersObj: Record<string, string>) => {
+      try {
+        const entries = Object.entries(playersObj || {});
+        const names = entries.map(([, name]) => name);
+        setPlayers(names);
+
+        const mySocketId = socket.id ?? "";
+        const myName =
+          playersObj[mySocketId] ||
+          gameData.myName ||
+          localStorage.getItem("name") ||
+          "";
+        const opponentEntry = entries.find(([id]) => id !== mySocketId);
+        const opponentName = opponentEntry ? opponentEntry[1] : "";
+
+        setGameData({ myName, opponentName });
+      } catch (err) {
+        console.error("Failed to parse playersUpdate", err);
+      }
+    };
+
+    socket.on("playersUpdate", handlePlayersUpdate);
 
     return () => {
       socket.off("healthDamage", handleHealthDamage);
+      socket.off("healthHeal", handleHealthHeal);
+      socket.off("playersUpdate", handlePlayersUpdate);
     };
   }, [socket]);
 
   useEffect(() => {
-    console.log("Opponent health changed:", opponentHealth);
-  }, [opponentHealth]);
+    console.log("Opponent health changed:", gameData.opponentHealth);
+  }, [gameData.opponentHealth]);
 
   return (
     <div className="w-full h-screen bg-image">
@@ -62,9 +90,9 @@ export default function Page() {
             <AvatarDialog
               dialog="I will beat your ass"
               avatar={1}
-              name="Sanku"
-              health={playerHealth}
-              lives={playerLives}
+              name={gameData.myName || "You"}
+              health={gameData.myHealth}
+              lives={gameData.playerLives}
               getHealthColor={getHealthColor}
             />
           </div>
@@ -72,14 +100,16 @@ export default function Page() {
             <AvatarDialog
               dialog="Try me!"
               avatar={3}
-              name="Nishit"
+              name={gameData.opponentName || "Opponent"}
               className="order-1 sm:order-2"
-              health={opponentHealth}
-              lives={opponentLives}
+              health={gameData.opponentHealth}
+              lives={gameData.opponentLives}
               getHealthColor={getHealthColor}
             />
           </div>
         </header>
+
+        <h2 className="text-2xl">{id}</h2>
 
         {/* Main Arena */}
         <main className="flex-1 flex flex-col items-center justify-center">

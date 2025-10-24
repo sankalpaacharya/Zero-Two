@@ -34,7 +34,7 @@ export default function Home() {
 
 function GameStart() {
   const [roomId, setRoomId] = useState("");
-  const { setRoomId: addRoomId } = useGameStore();
+  const { setRoomId: addRoomId, setGameData } = useGameStore();
   const [name, setName] = useState("");
   const socket = getSocket();
   useEffect(() => {
@@ -53,7 +53,7 @@ function GameStart() {
       toast("⛩️ Please enter your name");
       return;
     }
-    socket.emit("createRoom");
+    socket.emit("createRoom", { playerName: name });
   }, [socket, name]);
 
   const joinRoom = useCallback(() => {
@@ -61,17 +61,24 @@ function GameStart() {
       toast("⛩️ Please enter your name");
       return;
     }
-    socket.emit("joinRoom", { roomId });
+    socket.emit("joinRoom", { roomId, playerName: name });
+    // store my name locally in the store immediately
+    setGameData({ myName: name });
     addRoomId(roomId);
     redirect(`/game/${roomId}`);
   }, [socket, roomId, addRoomId, name]);
 
   useEffect(() => {
-    socket.on("joinedRoom", (payload) => {
-      addRoomId(payload.roomId);
-      redirect(`/game/${payload.roomId}`);
-    });
-  }, [socket, addRoomId]);
+    socket.on(
+      "joinedRoom",
+      (payload: { roomId: string; playerName?: string }) => {
+        addRoomId(payload.roomId);
+        // payload may include the player's name (server will send it when creating a room)
+        if (payload.playerName) setGameData({ myName: payload.playerName });
+        redirect(`/game/${payload.roomId}`);
+      }
+    );
+  }, [socket, addRoomId, setGameData]);
 
   return (
     <Card className="w-full max-w-md">

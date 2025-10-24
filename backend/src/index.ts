@@ -7,73 +7,113 @@ import { createClient } from "redis";
 const app = new Hono();
 
 const redis = createClient();
-redis.on('error', err => console.log('Redis Client Error', err));
+redis.on("error", (err) => console.log("Redis Client Error", err));
 await redis.connect();
 
 
-async function createRoomRedis(socketId: string) {
+async function createRoomRedis(socketId: string, playerName: string) {
   const roomId = `${Math.random().toString(36).slice(2, 8)}`;
-  console.log("room has been created");
-  await redis.sAdd(roomId, socketId); 
+  console.log("Room created:", roomId);
+
+  // store player in room hash: field = socketId, value = playerName
+  await redis.hSet(roomId, socketId, playerName);
   return roomId;
 }
 
-async function joinRoomRedis(roomId:string, socketId:string){
-  const exist = redis.exists(roomId)
-  if(!exist) throw new Error ("redis key error: RoomId doesn't exist")
-  await redis.sAdd(roomId,socketId)
-  const players = await redis.sMembers(roomId)
-  return players
+async function joinRoomRedis(roomId: string, socketId: string, playerName: string) {
+  const exists = await redis.exists(roomId);
+  if (!exists) throw new Error("RoomId doesn't exist");
+
+  await redis.hSet(roomId, socketId, playerName);
+
+  const players = await redis.hGetAll(roomId); 
+  return players;
 }
 
-async function getPlayersIdByRoomId(roomId:string){
-  const players = await redis.sMembers(roomId)
-  return players
-  
+async function getPlayersByRoom(roomId: string) {
+  const players = await redis.hGetAll(roomId);
+  return players; 
 }
 
 async function leaveRoomRedis(roomId: string, socketId: string) {
-  await redis.sRem(roomId, socketId);
-  const players = await redis.sMembers(roomId);
-  if (players.length === 0) {
-    await redis.del(roomId); 
+  await redis.hDel(roomId, socketId);
+
+  const players = await redis.hGetAll(roomId);
+  if (Object.keys(players).length === 0) {
+    await redis.del(roomId); // delete room if empty
   }
   return players;
 }
 
-const httpServer = serve({
-    fetch: app.fetch,
-    port: 3001,
+// ===== HTTP & Socket.IO server =====
 
+const httpServer = serve({
+  fetch: app.fetch,
+  port: 3001,
 });
 
-const io = new Server(httpServer as HTTPServer,{cors:{origin:"http://localhost:3000"}});
+const io = new Server(httpServer as HTTPServer, { cors: { origin: "http://localhost:3000" } });
 
 io.on("connection", (socket) => {
-  socket.emit("game","this is fuckign game data")
+  console.log("New connection:", socket.id);
 
-  socket.on("joinRoom",async (payload)=>{
-    joinRoomRedis(payload.roomId,socket.id)
-    socket.join(payload.roomId)    
-  })
+  // example test event
+  socket.emit("game", "this is game data");
 
-  socket.on("createRoom",async ()=>{
-    const roomId = await createRoomRedis(socket.id)
-    socket.join(roomId) 
-    socket.emit("joinedRoom",{roomId})
-  })
+  // Create a room
+  socket.on("createRoom", async (payload: any) => {
+    try {
+      const playerName = payload?.playerName ?? payload?.name ?? "";
+      const roomId = await createRoomRedis(socket.id, playerName);
+      socket.join(roomId);
+      // send room id and playerName back to creator
+      socket.emit("joinedRoom", { roomId, playerName });
 
-  let count = 0  
-  socket.on("typed",(payload)=>{
-    count++
-    console.log("something is type",count);
-    console.log(payload);
-    socket.to(payload.roomId).emit("healthDamage","damage")
-  })
+      // send updated players to room (only this player for now)
+      io.in(roomId).emit("playersUpdate", await getPlayersByRoom(roomId));
+    } catch (err) {
+      console.error(err);
+      socket.emit("error", "Could not create room");
+    }
+  });
 
-  // this socket emit will be called when there is a word complete correctly.
-  socket.on("healthUpdate",()=>{
-     
-  })
+  // Join existing room
+  socket.on("joinRoom", async (payload: any) => {
+    try {
+      const playerName = payload?.playerName ?? payload?.name ?? "";
+      const players = await joinRoomRedis(payload.roomId, socket.id, playerName);
+      socket.join(payload.roomId);
 
+      // optionally inform the joining socket it joined
+      socket.emit("joinedRoom", { roomId: payload.roomId, playerName });
+
+      // broadcast updated players list to room
+      io.in(payload.roomId).emit("playersUpdate", players);
+    } catch (err) {
+      console.error(err);
+      socket.emit("error", (err as Error).message);
+    }
+  });
+
+  // Player typed correct letter
+  socket.on("typed", (payload: { roomId: string }) => {
+    console.log("User typed correctly");
+    socket.to(payload.roomId).emit("healthDamage", { health: "damage" });
+  });
+
+  // Player completed a word and heals
+  socket.on("healthHeal", (payload: { roomId: string }) => {
+    console.log("Heal triggered for room:", payload.roomId);
+    socket.to(payload.roomId).emit("healthHeal", { health: "healed" });
+  });
+
+  // Handle disconnect
+  socket.on("disconnecting", async () => {
+    const rooms = Array.from(socket.rooms).filter((r) => r !== socket.id);
+    for (const roomId of rooms) {
+      const players = await leaveRoomRedis(roomId, socket.id);
+      io.in(roomId).emit("playersUpdate", players);
+    }
+    console.log("Disconnected:", socket.id);
+  });
 });

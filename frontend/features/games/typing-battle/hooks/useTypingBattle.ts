@@ -13,7 +13,7 @@ interface UseTypingBattleConfig {
  */
 export function useTypingBattle({ words, roomId }: UseTypingBattleConfig) {
   const socket = getSocket();
-  const { setIsStarted } = useGameStore();
+  const { setIsStarted, gameData,setGameData} = useGameStore();
   const [isGameStarted, setIsGameStarted] = useState(false);
 
   // Use core typing functionality
@@ -30,10 +30,14 @@ export function useTypingBattle({ words, roomId }: UseTypingBattleConfig) {
         setIsStarted(true);
       }
     },
+
     onWordComplete:(wordIndex,typedString)=>{
+      console.log("user completed typing a word");
       if(words[wordIndex]===typedString.split(" ")[wordIndex]) {
-        socket.emit("healthUpdate")
-        console.log("make the health full of the user");
+        if(gameData.healWords[wordIndex]){
+        socket.emit("healthUpdate",{roomId})
+        setGameData({...gameData,myHealth:100});
+        }
       }
     }
   });

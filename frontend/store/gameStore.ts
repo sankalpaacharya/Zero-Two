@@ -1,11 +1,14 @@
 import { create } from "zustand";
 import { combine } from "zustand/middleware";
 
-interface GameData {
+export interface GameData {
   myHealth: number;
   opponentHealth: number;
   playerLives: number;
   opponentLives: number;
+  healWords: boolean[];
+  myName:string,
+  opponentName:string
 }
 
 interface GameState {
@@ -19,12 +22,15 @@ interface GameState {
   setPlayers: (players: string[]) => void;
   setIsStarted: (isStarted: boolean) => void;
   setGameData: (data: Partial<GameData>) => void;
+  setMyName: (name: string) => void;
+  setOpponentName: (name: string) => void;
 
   // helpers
   decreasePlayerLives: () => void;
+  setHealWords: (healWords: boolean[]) => void;
   decreaseOpponentLives: () => void;
-  decreaseMyHealth: (amount: number) => void;
-  decreaseOpponentHealth: (amount: number) => void;
+  updateMyHealth: (amount: number) => void;
+  updateOpponentHealth: (amount: number) => void;
   resetGame: () => void;
 }
 
@@ -38,7 +44,12 @@ export const useGameStore = create<GameState>(
         myHealth: 100,
         opponentHealth: 100,
         playerLives: 3,
+        myName:"",
+      opponentName:"",
+
         opponentLives: 3,
+        healWords: [] as boolean[],
+        
       },
     },
     (set) => ({
@@ -50,14 +61,21 @@ export const useGameStore = create<GameState>(
           gameData: { ...state.gameData, ...data },
         })),
 
+      setMyName: (name: string) =>
+        set((state) => ({
+          gameData: { ...state.gameData, myName: name },
+        })),
+
+      setOpponentName: (name: string) =>
+        set((state) => ({
+          gameData: { ...state.gameData, opponentName: name },
+        })),
+
       decreasePlayerLives: () =>
         set((state) => ({
           gameData: {
             ...state.gameData,
-            playerLives: Math.max(
-              0,
-              (state.gameData.playerLives ?? 0) - 1
-            ),
+            playerLives: Math.max(0, state.gameData.playerLives - 1),
           },
         })),
 
@@ -65,33 +83,29 @@ export const useGameStore = create<GameState>(
         set((state) => ({
           gameData: {
             ...state.gameData,
-            opponentLives: Math.max(
-              0,
-              (state.gameData.opponentLives ?? 0) - 1
-            ),
+            opponentLives: Math.max(0, state.gameData.opponentLives - 1),
           },
         })),
 
-      decreaseMyHealth: (amount: number) =>
+      updateMyHealth: (amount: number) =>
         set((state) => ({
           gameData: {
             ...state.gameData,
-            myHealth: Math.max(
-              0,
-              (state.gameData.myHealth ?? 0) - amount
-            ),
+            myHealth: Math.max(0, state.gameData.myHealth + amount),
           },
         })),
 
-      decreaseOpponentHealth: (amount: number) =>
+      updateOpponentHealth: (amount: number) =>
         set((state) => ({
           gameData: {
             ...state.gameData,
-            opponentHealth: Math.max(
-              0,
-              (state.gameData.opponentHealth ?? 0) - amount
-            ),
+            opponentHealth: Math.max(0, state.gameData.opponentHealth + amount),
           },
+        })),
+
+      setHealWords: (healWords: boolean[]) =>
+        set((state) => ({
+          gameData: { ...state.gameData, healWords },
         })),
 
       resetGame: () =>
@@ -101,6 +115,9 @@ export const useGameStore = create<GameState>(
             opponentHealth: 100,
             playerLives: 3,
             opponentLives: 3,
+            myName:"",
+            opponentName:"",
+            healWords: [],
           },
         }),
     })

@@ -19,12 +19,14 @@ export function TypingBattleGame({
   message = "The world is made up of loafers who want money without working and fools who are willing to work without becoming rich The world is made up of loafers who want money without working and fools who are willing to work without becoming richThe world is made up of loafers who want money without working and fools who are willing to work without becoming rich ",
 }: TypingBattleGameProps) {
   const [words, setWords] = useState(message.split(" "));
-  const { roomId } = useGameStore();
+  const { roomId, setHealWords: setHealWordsStore } = useGameStore();
 
   // Heal words feature (20% of words are heal words)
   const [healWords, setHealWords] = useState<boolean[]>([]);
   useEffect(() => {
-    setHealWords(words.map(() => Math.random() < 0.2));
+    const healingWords = words.map(() => Math.random() < 0.2);
+    setHealWords(healingWords);
+    setHealWordsStore(healingWords);
   }, [words]);
 
   // Core typing mechanics with game-specific logic
