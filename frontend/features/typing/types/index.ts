@@ -15,7 +15,7 @@ export interface TypingConfig {
   /** Callback when a correct character is typed */
   onCorrectChar?: (wordIndex: number, charIndex: number) => void;
   /** Callback when a word is completed */
-  onWordComplete?: (wordIndex: number) => void;
+  onWordComplete?: (wordIndex: number, typedString:string) => void;
   /** Callback when an incorrect character is typed */
   onIncorrectChar?: (wordIndex: number, charIndex: number) => void;
   /** Callback when any typing occurs */

@@ -7,7 +7,6 @@ interface UseTypingBattleConfig {
   words: string[];
   roomId: string;
 }
-
 /**
  * Game-specific typing hook for typing battle game
  * Integrates core typing with game mechanics (health, socket events, etc.)
@@ -31,6 +30,12 @@ export function useTypingBattle({ words, roomId }: UseTypingBattleConfig) {
         setIsStarted(true);
       }
     },
+    onWordComplete:(wordIndex,typedString)=>{
+      if(words[wordIndex]===typedString.split(" ")[wordIndex]) {
+        socket.emit("healthUpdate")
+        console.log("make the health full of the user");
+      }
+    }
   });
 
   return {

@@ -71,4 +71,9 @@ io.on("connection", (socket) => {
     socket.to(payload.roomId).emit("healthDamage","damage")
   })
 
+  // this socket emit will be called when there is a word complete correctly.
+  socket.on("healthUpdate",()=>{
+     
+  })
+
 });

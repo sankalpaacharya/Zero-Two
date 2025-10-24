@@ -53,7 +53,7 @@ export function useTypingCore({
 
       // Handle space (word completion)
       if (typedChar === " ") {
-        onWordComplete?.(activeWord);
+        onWordComplete?.(activeWord,typedValue);
         setActiveWord((prev) => prev + 1);
         setCurrCharIndex(0);
         setTypedValue(newValue);
