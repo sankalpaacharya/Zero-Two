@@ -7,6 +7,7 @@ import { useEffect, useState, useRef } from "react";
 import Clock from "@/components/timer";
 import { useGameStore } from "@/store/gameStore";
 import AvatarDialog from "@/components/avatar-dialog";
+import ActionCard from "@/features/typing/components/action-card";
 
 export default function Page() {
   const socket = getSocket();
@@ -107,6 +108,7 @@ export default function Page() {
               getHealthColor={getHealthColor}
             />
           </div>
+          <ActionCard />
           <div className="flex items-start gap-3">
             <AvatarDialog
               dialog="Try me!"
