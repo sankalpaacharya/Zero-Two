@@ -9,19 +9,14 @@ import Clock from "@/components/timer";
 import { useGameStore } from "@/store/gameStore";
 import AvatarDialog from "@/components/avatar-dialog";
 import ActionCard from "@/features/typing/components/action-card";
+import { Progress } from "@/components/ui/8bit/progress";
 
 export default function Page() {
   const socket = getSocket();
   const { id } = useParams(); // id may be string | string[] | undefined
   const roomId = Array.isArray(id) ? id[0] : id ?? "";
-  const {
-    isStarted,
-    gameData,
-    updateMyHealth,
-    setPlayers,
-    setGameData,
-    updateOpponentHealth,
-  } = useGameStore();
+  const { isStarted, gameData, updateMyHealth, setPlayers, setGameData } =
+    useGameStore();
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
@@ -146,7 +141,18 @@ export default function Page() {
           </div>
 
           <div className="w-full mb-10">
+            <Progress
+              value={gameData.opponentHealth}
+              className="h-2  mt-1"
+              progressBg={getHealthColor(gameData.opponentHealth)}
+            />
+
             <Typing />
+            <Progress
+              value={gameData.myHealth}
+              className="h-2  mt-1"
+              progressBg={getHealthColor(gameData.myHealth)}
+            />
           </div>
         </main>
       </div>

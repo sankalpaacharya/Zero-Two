@@ -5,7 +5,6 @@ import {
 } from "@/components/ui/8bit/avatar";
 import { Alert, AlertTitle } from "@/components/ui/8bit/alert";
 import { Card } from "./ui/8bit/card";
-import { Progress } from "@/components/ui/8bit/progress";
 import Image from "next/image";
 
 type AvatarDialogProps = {
@@ -69,11 +68,6 @@ export default function AvatarDialog({
             </div>
           </div>
         </div>
-        <Progress
-          value={health}
-          className="h-3 w-40 sm:w-56 mt-1"
-          progressBg={getHealthColor(health)}
-        />
       </Card>
       {dialog && dialog.trim().length > 0 && (
         <Alert className="mt-2">
