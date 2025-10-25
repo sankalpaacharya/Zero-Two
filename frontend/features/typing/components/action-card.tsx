@@ -1,48 +1,51 @@
 import React from "react";
 import { Card } from "@/components/ui/8bit/card";
 import Image from "next/image";
+import { Badge } from "@/components/ui/8bit/badge";
 
-type Props = {};
+type ActionDef = {
+  src: string;
+  alt: string;
+  keyLabel: string;
+};
 
-export default function ActionCard({}: Props) {
+const ACTIONS: ActionDef[] = [
+  { src: "/images/fireball.png", alt: "fireball", keyLabel: "1" },
+  { src: "/images/healup.png", alt: "heal", keyLabel: "2" },
+  { src: "/images/flashbang.png", alt: "flashbang", keyLabel: "3" },
+];
+
+function ActionItem({ src, alt, keyLabel }: ActionDef) {
+  return (
+    <div className="relative w-20 p-0 overflow-visible">
+      <Card className="w-full p-0">
+        <Image
+          src={src}
+          alt={alt}
+          width={48}
+          height={48}
+          className="object-contain h-20 w-20"
+        />
+      </Card>
+
+      <span className="absolute z-50 -top-2 -right-2 inline-flex items-center justify-center h-5 w-5 rounded bg-primary text-primary-foreground font-mono font-bold text-xs border border-border shadow-xs">
+        {keyLabel}
+      </span>
+    </div>
+  );
+}
+
+export default function ActionCard() {
   return (
     <div className="flex w-full justify-center gap-10">
-      <Card className="w-20 p-0 relative">
-        <span className="absolute size-5 text-xs bg-indigo-700 rounded-full p-1 bottom-0 right-0">
-          1
-        </span>
-        <Image
-          src={"/images/fireball.png"}
-          alt="fireball"
-          width={20}
-          height={20}
-          className="object-cover h-20 w-25"
+      {ACTIONS.map((a) => (
+        <ActionItem
+          key={a.keyLabel}
+          src={a.src}
+          alt={a.alt}
+          keyLabel={a.keyLabel}
         />
-      </Card>
-      <Card className="w-20 p-0 relative">
-        <span className="absolute size-5 text-xs bg-indigo-700 rounded-full p-1 bottom-0 right-0">
-          2
-        </span>
-        <Image
-          src={"/images/healup.png"}
-          alt="fireball"
-          width={20}
-          height={20}
-          className="object-cover h-20 w-25"
-        />
-      </Card>
-      <Card className="w-20 p-0 relative">
-        <span className="absolute size-5 text-xs bg-indigo-700 rounded-full p-1 bottom-0 right-0">
-          3
-        </span>
-        <Image
-          src={"/images/flashbang.png"}
-          alt="fireball"
-          width={20}
-          height={20}
-          className="object-cover h-20 w-25"
-        />
-      </Card>
+      ))}
     </div>
   );
 }

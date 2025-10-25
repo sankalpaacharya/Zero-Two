@@ -38,8 +38,9 @@ function Card({ ...props }: BitCardProps) {
   return (
     <div
       className={cn(
-        "relative border-y-6 border-foreground dark:border-ring !p-0",
-        className,
+        // baseline stacking context so overlays live at a known z layer
+        "relative z-0 border-y-6 border-foreground dark:border-ring !p-0",
+        className
       )}
     >
       <ShadcnCard
@@ -47,12 +48,13 @@ function Card({ ...props }: BitCardProps) {
         className={cn(
           "rounded-none border-0 !w-full",
           font !== "normal" && "retro",
-          className,
+          className
         )}
       />
 
       <div
-        className="absolute inset-0 border-x-6 -mx-1.5 border-foreground dark:border-ring pointer-events-none"
+        // decorative overlay should sit on a known z so external badges can be placed above it
+        className="absolute inset-0 border-x-6 -mx-1.5 border-foreground dark:border-ring pointer-events-none z-10"
         aria-hidden="true"
       />
     </div>

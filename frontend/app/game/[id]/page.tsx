@@ -4,6 +4,7 @@ import Typing from "@/components/typing";
 import { getSocket } from "@/lib/socket";
 import { useParams } from "next/navigation";
 import { useEffect, useState, useRef } from "react";
+import { CopyIcon, CircleCheckIcon } from "lucide-react";
 import Clock from "@/components/timer";
 import { useGameStore } from "@/store/gameStore";
 import AvatarDialog from "@/components/avatar-dialog";
@@ -11,7 +12,8 @@ import ActionCard from "@/features/typing/components/action-card";
 
 export default function Page() {
   const socket = getSocket();
-  const { id } = useParams(); // id is currently unused
+  const { id } = useParams(); // id may be string | string[] | undefined
+  const roomId = Array.isArray(id) ? id[0] : id ?? "";
   const {
     isStarted,
     gameData,
@@ -122,7 +124,20 @@ export default function Page() {
           </div>
         </header>
 
-        <h2 className="text-2xl">{id}</h2>
+        {/* Room info + copy button - placed under header where it is visible and makes sense */}
+        <div className="flex items-center justify-center gap-3 my-3">
+          {roomId ? (
+            <div className="inline-flex items-center gap-2 bg-popover text-popover-foreground border border-border px-3 py-1 rounded-md">
+              <span className="text-sm font-mono">Room</span>
+              <span className="text-lg font-mono font-bold truncate">
+                {roomId}
+              </span>
+              <CopyRoomButton roomId={roomId} />
+            </div>
+          ) : (
+            <div className="text-sm text-muted-foreground">No room</div>
+          )}
+        </div>
 
         {/* Main Arena */}
         <main className="flex-1 flex flex-col items-center justify-center">
@@ -143,4 +158,46 @@ function getHealthColor(value: number) {
   if (value > 70) return "bg-green-500";
   if (value > 30) return "bg-yellow-500";
   return "bg-red-500";
+}
+
+function CopyRoomButton({ roomId }: { roomId: string }) {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(roomId);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error("Copy failed", err);
+      // fallback: select and prompt
+      try {
+        const ta = document.createElement("textarea");
+        ta.value = roomId;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand("copy");
+        ta.remove();
+        setCopied(true);
+        window.setTimeout(() => setCopied(false), 2000);
+      } catch (e) {
+        console.error("Fallback copy failed", e);
+      }
+    }
+  };
+
+  return (
+    <button
+      type="button"
+      onClick={handleCopy}
+      aria-label={copied ? "Copied" : "Copy room id"}
+      className="inline-flex items-center justify-center p-1 rounded border border-border"
+    >
+      {copied ? (
+        <CircleCheckIcon className="size-4 text-primary" />
+      ) : (
+        <CopyIcon className="size-4" />
+      )}
+    </button>
+  );
 }
