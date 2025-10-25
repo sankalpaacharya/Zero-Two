@@ -143,14 +143,14 @@ export default function Page() {
           <div className="w-full mb-10">
             <Progress
               value={gameData.opponentHealth}
-              className="h-2  mt-1"
+              className="h-2 mt-1 transition-all duration-150 ease-in-out"
               progressBg={getHealthColor(gameData.opponentHealth)}
             />
 
             <Typing />
             <Progress
               value={gameData.myHealth}
-              className="h-2  mt-1"
+              className="h-2 mt-1 transition-all duration-150 ease-in-out"
               progressBg={getHealthColor(gameData.myHealth)}
             />
           </div>

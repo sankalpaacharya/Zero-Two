@@ -9,6 +9,7 @@ export interface GameData {
   healWords: boolean[];
   myName:string,
   opponentName:string
+  coins: number;
 }
 
 interface GameState {
@@ -31,6 +32,8 @@ interface GameState {
   decreaseOpponentLives: () => void;
   updateMyHealth: (amount: number) => void;
   updateOpponentHealth: (amount: number) => void;
+  addCoins: (amount: number) => void;
+  spendCoins: (amount: number) => void;
   resetGame: () => void;
 }
 
@@ -49,6 +52,7 @@ export const useGameStore = create<GameState>(
 
         opponentLives: 3,
         healWords: [] as boolean[],
+        coins: 0,
         
       },
     },
@@ -108,6 +112,22 @@ export const useGameStore = create<GameState>(
           gameData: { ...state.gameData, healWords },
         })),
 
+      addCoins: (amount: number) =>
+        set((state) => ({
+          gameData: {
+            ...state.gameData,
+            coins: state.gameData.coins + amount,
+          },
+        })),
+
+      spendCoins: (amount: number) =>
+        set((state) => ({
+          gameData: {
+            ...state.gameData,
+            coins: Math.max(0, state.gameData.coins - amount),
+          },
+        })),
+
       resetGame: () =>
         set({
           gameData: {
@@ -118,6 +138,7 @@ export const useGameStore = create<GameState>(
             myName:"",
             opponentName:"",
             healWords: [],
+            coins: 0,
           },
         }),
     })
