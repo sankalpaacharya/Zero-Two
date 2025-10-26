@@ -61,9 +61,7 @@ export function SpeedTyperGame({
       return { color: "text-white/50" };
     }
     return {
-      color: correctCharacterMap.get(key)
-        ? "text-blue-400 font-bold"
-        : "text-red-500 font-bold",
+      color: correctCharacterMap.get(key) ? "text-blue-400" : "text-red-500",
     };
   };
 

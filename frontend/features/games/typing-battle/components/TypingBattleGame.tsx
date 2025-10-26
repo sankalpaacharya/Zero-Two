@@ -86,9 +86,7 @@ export function TypingBattleGame({
       };
     }
     return {
-      color: correctCharacterMap.get(key)
-        ? "text-white font-semibold"
-        : "text-red-400 font-semibold",
+      color: correctCharacterMap.get(key) ? "text-white" : "text-red-400",
     };
   };
 

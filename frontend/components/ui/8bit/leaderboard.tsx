@@ -58,7 +58,7 @@ const playerItemVariants = cva(
     defaultVariants: {
       rank: "default",
     },
-  },
+  }
 );
 
 const rankBadgeVariants = cva(
@@ -79,12 +79,12 @@ const rankBadgeVariants = cva(
     defaultVariants: {
       rank: "default",
     },
-  },
+  }
 );
 
 function getRankVariant(
   rank: number,
-  isCurrentPlayer: boolean,
+  isCurrentPlayer: boolean
 ): "default" | "first" | "second" | "third" | "current" {
   if (isCurrentPlayer) return "current";
   if (rank === 1) return "first";
@@ -157,7 +157,7 @@ export function Leaderboard({
             sortedPlayers.map((player) => {
               const rankVariant = getRankVariant(
                 player.rank!,
-                player.isCurrentPlayer!,
+                player.isCurrentPlayer!
               );
 
               return (
@@ -165,7 +165,7 @@ export function Leaderboard({
                   key={player.id}
                   className={cn(
                     playerItemVariants({ rank: rankVariant }),
-                    "retro",
+                    "retro"
                   )}
                 >
                   <div className="flex items-center gap-3">
@@ -196,7 +196,7 @@ export function Leaderboard({
                         <span
                           className={cn(
                             "font-medium truncate retro text-xs md:text-sm",
-                            player.isCurrentPlayer && "text-primary font-bold",
+                            player.isCurrentPlayer && "text-primary font-bold"
                           )}
                         >
                           {player.name}
@@ -215,7 +215,7 @@ export function Leaderboard({
                         rankVariant === "first" && "text-yellow-600",
                         rankVariant === "second" && "text-gray-600",
                         rankVariant === "third" && "text-amber-700",
-                        player.isCurrentPlayer && "text-primary",
+                        player.isCurrentPlayer && "text-primary"
                       )}
                     >
                       {formatScore(player.score)}

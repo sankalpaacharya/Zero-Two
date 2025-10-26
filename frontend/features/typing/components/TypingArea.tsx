@@ -77,7 +77,7 @@ export function TypingArea({
 
       {isInputActive && (
         <span
-          className="absolute w-1 caret h-6 bg-amber-400 transition-all duration-100 ease-out"
+          className="absolute w-1 caret h-6 bg-amber-400 transition-all"
           style={{ top: `${caretPos.y}px`, left: `${caretPos.x}px` }}
         />
       )}
